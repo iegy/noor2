@@ -239,7 +239,6 @@
                                 <tbody id="tableBody" class="text-base divide-y divide-slate-100 dark:divide-slate-600"></tbody>
                             </table>
                         </div>
-                        <!-- أزرار التنقل بين الصفحات -->
                         <div id="paginationControls" class="flex justify-between items-center px-4 py-3 border-t border-slate-200 dark:border-slate-600 no-print hidden">
                             <button id="prevPageBtn" onclick="goToPage(currentPage - 1)" class="pagination-btn flex items-center gap-1">
                                 <i class="fa-solid fa-chevron-right"></i> السابق
@@ -254,7 +253,7 @@
                 </div>
             </div>
 
-            <!-- التقارير (بدون تغيير) -->
+            <!-- التقارير -->
             <div id="reportsTabContent" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-building text-amber-500 ml-2"></i> الموجود في المكتب</h3><button onclick="printReport('office')" class="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportOffice" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
@@ -267,9 +266,10 @@
             </div>
         </main>
 
-        <!-- المودالات -->
+        <!-- جميع المودالات كاملة -->
         <div id="passwordModal" class="modal-overlay" onclick="if(event.target === this) closePasswordModal()">
-            <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تغيير كلمة المرور</h3><button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تغيير كلمة المرور</h3><button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
                 <form id="passwordForm" onsubmit="saveNewPassword(event)" class="space-y-5">
                     <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">كلمة المرور الحالية</label><input type="password" id="currentPassword" class="w-full odoo-input" required></div>
                     <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">كلمة المرور الجديدة</label><input type="password" id="newPassword" class="w-full odoo-input" required></div>
@@ -298,14 +298,11 @@
             <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">إدارة الفروع</h3><button onclick="closeBranchesModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div><div class="space-y-3 mb-5 max-h-60 overflow-y-auto" id="branchesList"></div><div class="flex gap-2"><input type="text" id="newBranchName" class="flex-1 odoo-input" placeholder="اسم الفرع الجديد"><button onclick="addBranch()" class="odoo-btn-primary">إضافة</button></div></div>
         </div>
 
-        <!-- نافذة تخصيص الأعمدة (مُصححة) -->
         <div id="columnSettingsModal" class="modal-overlay" onclick="if(event.target === this) closeColumnSettings()">
             <div class="modal-content">
                 <div class="flex justify-between items-center mb-5">
                     <h3 class="text-xl font-bold text-slate-800 dark:text-white">تخصيص الأعمدة</h3>
-                    <button onclick="closeColumnSettings()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                        <i class="fa-solid fa-xmark text-2xl"></i>
-                    </button>
+                    <button onclick="closeColumnSettings()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button>
                 </div>
                 <div class="space-y-3 max-h-80 overflow-y-auto" id="columnsCheckboxes"></div>
                 <div class="text-sm text-slate-500 dark:text-slate-400 mt-2" id="columnCountIndicator"></div>
@@ -313,7 +310,6 @@
             </div>
         </div>
 
-        <!-- باقي المودالات (المستخدمين، التأكيد، التنبيه) بدون تغيير يذكر -->
         <div id="usersModal" class="modal-overlay" onclick="if(event.target === this) closeUsersModal()">
             <div class="modal-content" style="max-width: 650px;">
                 <div class="flex justify-between items-center mb-5">
@@ -351,6 +347,7 @@
             <p class="text-base text-slate-400 dark:text-slate-300">نظام تتبع نور للبصريات &copy; 2026</p>
             <p class="text-base text-slate-500 dark:text-slate-400 mt-1">Made with <span class="text-red-500">❤️</span> by Mohammed Hussein 2026</p>
         </footer>
+    </div>
 
     <script>
         // ========== إعدادات Firebase ==========
@@ -580,7 +577,7 @@
             } 
         });
 
-        // ========== دوال تخصيص الأعمدة (مُحسَّنة) ==========
+        // ========== دوال تخصيص الأعمدة ==========
         function openColumnSettings() {
             const container = document.getElementById('columnsCheckboxes');
             container.innerHTML = allColumns.map(col => 
@@ -619,8 +616,6 @@
         async function addBranch() { const name = document.getElementById('newBranchName').value.trim(); if (!name) return showAlert('أدخل اسم الفرع'); if (branches.includes(name)) return showAlert('الفرع موجود'); branches.push(name); await saveBranchesToFirestore(); document.getElementById('newBranchName').value = ''; populateBranchSelect(); renderBranchesList(); }
         async function editBranch(index) { const newName = prompt('اسم الفرع الجديد:', branches[index]); if (newName && newName.trim() && !branches.includes(newName.trim())) { const old = branches[index]; branches[index] = newName.trim(); orders.forEach(o => { if (o.branch === old) o.branch = newName.trim(); }); if (currentBranch === old) switchBranch(newName.trim()); await saveBranchesToFirestore(); for (const o of orders) { if (o.branch === newName || o.branch === old) await saveOrderToFirestore(o); } populateBranchSelect(); renderBranchesList(); renderTable(); } else if (newName && branches.includes(newName.trim())) showAlert('الفرع موجود'); }
         async function deleteBranch(index) { if (branches.length <= 1) return showAlert('يجب وجود فرع واحد على الأقل'); const branchToDelete = branches[index]; showConfirm(`حذف فرع "${branchToDelete}" سينقل طلباته إلى "عام". متابعة؟`, async function(ok) { if (ok) { orders.forEach(o => { if (o.branch === branchToDelete) o.branch = 'عام'; }); branches.splice(index, 1); if (currentBranch === branchToDelete) switchBranch(branches[0]); await saveBranchesToFirestore(); for (const o of orders) { if (o.branch === 'عام') await saveOrderToFirestore(o); } populateBranchSelect(); renderBranchesList(); renderTable(); } }); }
-
-        // ... (باقي دوال إدارة المستخدمين كما هي) ...
 
         function openUsersModal() { if (!currentUser || currentUser.role !== 'super_admin') return; renderUsersList(); document.getElementById('usersModal').classList.add('active'); }
         function closeUsersModal() { document.getElementById('usersModal').classList.remove('active'); }
@@ -704,7 +699,7 @@
             });
         }
 
-        // ========== دوال التصفّح ==========
+        // ========== التصفّح ==========
         function resetPagination() { currentPage = 1; }
         function goToPage(page) {
             const totalPages = Math.ceil(getFilteredOrders().length / pageSize);
