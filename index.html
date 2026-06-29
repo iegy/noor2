@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة وتتبع الطلبات - نظارات نور (متعدد الفروع)</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -72,6 +72,8 @@
         .dark #branchSelect { color: #e2e8f0; }
         #branchSelect option { background: #875A7B; color: white; }
         .dark #branchSelect option { background: #2d3748; }
+        .optional-label::after { content: " (اختياري)"; font-size: 12px; color: #94a3b8; font-weight: 400; }
+        .dark .optional-label::after { color: #94a3b8; }
     </style>
 </head>
 <body class="text-slate-800 antialiased">
@@ -174,26 +176,26 @@
                 <div class="mb-6 no-print" id="orderFormSection">
                     <div class="odoo-card rounded-xl overflow-hidden">
                         <div class="flex items-center justify-between p-5 cursor-pointer select-none" onclick="toggleOrderForm()" id="formToggleHeader">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-circle-plus text-odoo-500 text-xl"></i><h2 class="text-lg font-bold text-slate-800 dark:text-white">تسجيل معاملة جديدة</h2></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-circle-plus text-odoo-500 text-xl"></i><h2 class="text-lg font-bold text-slate-800 dark:text-white">تسجيل معاملة جديدة <span class="text-sm font-normal text-slate-400">(جميع الحقول اختيارية)</span></h2></div>
                             <i id="formToggleIcon" class="fa-solid fa-chevron-down text-slate-400 transition-transform text-lg"></i>
                         </div>
                         <div id="formCollapsible" class="collapsible-content">
                             <div class="p-5 border-t border-slate-100 dark:border-slate-600">
                                 <form id="orderForm" class="space-y-5">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تاريخ الإرسال</label><input type="date" id="orderDate" class="w-full odoo-input" required></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">اسم العميل</label><input type="text" id="custName" class="w-full odoo-input" placeholder="محمد أحمد..." required></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">رقم التليفون</label><input type="tel" id="custPhone" class="w-full odoo-input text-right" placeholder="012xxxxxxx" required></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">رقم SO</label><input type="text" id="orderSoNumber" class="w-full odoo-input" placeholder="مثال: SO-00125"></div>
+                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">تاريخ الإرسال</label><input type="date" id="orderDate" class="w-full odoo-input"></div>
+                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">اسم العميل</label><input type="text" id="custName" class="w-full odoo-input" placeholder="محمد أحمد..."></div>
+                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم التليفون</label><input type="tel" id="custPhone" class="w-full odoo-input text-right" placeholder="012xxxxxxx"></div>
+                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input type="text" id="orderSoNumber" class="w-full odoo-input" placeholder="مثال: SO-00125"></div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تصنيف العمل</label><select id="orderType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات جديدة</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select id="orderStatus" class="w-full odoo-input"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select></div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تسليم العميل</label><select id="deliveryStatus" class="w-full odoo-input"><option value="لم يتم">لم يتم ❌</option><option value="تم التسليم">تم التسليم ✅</option></select></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">ملاحظات</label><textarea id="orderNotes" rows="2" class="w-full odoo-input" placeholder="ملاحظات..."></textarea></div>
+                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><textarea id="orderNotes" rows="2" class="w-full odoo-input" placeholder="ملاحظات..."></textarea></div>
                                     </div>
                                     <div class="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-xl space-y-4">
                                         <div class="grid grid-cols-2 gap-4">
-                                            <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">الإجمالي</label><input type="number" id="totalPrice" min="0" class="w-full odoo-input" oninput="calcRemaining()" placeholder="0.00" required></div>
-                                            <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المدفوع</label><input type="number" id="paidAmount" min="0" class="w-full odoo-input" oninput="calcRemaining()" placeholder="0.00" required></div>
+                                            <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input type="number" id="totalPrice" min="0" class="w-full odoo-input" oninput="calcRemaining()" placeholder="0.00"></div>
+                                            <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input type="number" id="paidAmount" min="0" class="w-full odoo-input" oninput="calcRemaining()" placeholder="0.00"></div>
                                         </div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input type="number" id="remainingAmount" class="w-full bg-white dark:bg-gray-500 border border-slate-200 dark:border-gray-600 rounded-lg py-2 px-3 text-base font-bold" readonly value="0"></div>
                                     </div>
@@ -267,12 +269,12 @@
             <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تعديل الطلب</h3><button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
                 <form id="editForm" class="space-y-5">
                     <input type="hidden" id="editId">
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تاريخ الإرسال</label><input type="date" id="editDate" class="w-full odoo-input" required></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">الاسم</label><input type="text" id="editName" class="w-full odoo-input" required></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">الهاتف</label><input type="text" id="editPhone" class="w-full odoo-input" required></div></div>
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">رقم SO</label><input type="text" id="editSoNumber" class="w-full odoo-input"></div>
-                    <div class="grid grid-cols-3 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">الإجمالي</label><input type="number" id="editTotal" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المدفوع</label><input type="number" id="editPaid" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input type="number" id="editRemaining" class="w-full bg-slate-100 dark:bg-slate-600 rounded-lg py-2 px-3 text-base font-bold" readonly></div></div>
+                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">تاريخ الإرسال</label><input type="date" id="editDate" class="w-full odoo-input"></div>
+                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الاسم</label><input type="text" id="editName" class="w-full odoo-input"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الهاتف</label><input type="text" id="editPhone" class="w-full odoo-input"></div></div>
+                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input type="text" id="editSoNumber" class="w-full odoo-input"></div>
+                    <div class="grid grid-cols-3 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input type="number" id="editTotal" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input type="number" id="editPaid" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input type="number" id="editRemaining" class="w-full bg-slate-100 dark:bg-slate-600 rounded-lg py-2 px-3 text-base font-bold" readonly></div></div>
                     <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">النوع</label><select id="editType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select id="editStatus" class="w-full odoo-input"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select></div></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التسليم</label><select id="editDelivery" class="w-full odoo-input"><option value="لم يتم">لم يتم</option><option value="تم التسليم">تم التسليم</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">ملاحظات</label><input type="text" id="editNotes" class="w-full odoo-input"></div></div>
+                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التسليم</label><select id="editDelivery" class="w-full odoo-input"><option value="لم يتم">لم يتم</option><option value="تم التسليم">تم التسليم</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><input type="text" id="editNotes" class="w-full odoo-input"></div></div>
                     <button type="submit" class="w-full odoo-btn-primary py-3 text-lg"><i class="fa-solid fa-floppy-disk ml-2"></i> حفظ التعديلات</button>
                 </form>
             </div>
@@ -490,16 +492,46 @@
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return;
+            
+            // جميع الحقول اختيارية الآن
             const dateValue = document.getElementById('orderDate').value;
-            if (!dateValue) return showAlert('يرجى اختيار التاريخ');
-            const [y, m, d] = dateValue.split('-');
-            const formattedDate = `${d}/${m}/${y}`;
-            let total = parseFloat(document.getElementById('totalPrice').value)||0, paid = parseFloat(document.getElementById('paidAmount').value)||0;
+            // إذا لم يُدخل تاريخ، استخدم تاريخ اليوم
+            let formattedDate;
+            if (dateValue) {
+                const [y, m, d] = dateValue.split('-');
+                formattedDate = `${d}/${m}/${y}`;
+            } else {
+                const now = new Date();
+                formattedDate = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+            }
+            
+            let total = parseFloat(document.getElementById('totalPrice').value)||0;
+            let paid = parseFloat(document.getElementById('paidAmount').value)||0;
             let orderBranch = currentBranch;
             if (currentUser.role === 'super_admin' && currentBranch === 'all') {
                 orderBranch = branches[0] || 'رشيد';
             }
-            let newOrder = { id: Date.now(), date: formattedDate, branch: orderBranch, soNumber: document.getElementById('orderSoNumber').value.trim(), name: document.getElementById('custName').value.trim(), phone: document.getElementById('custPhone').value.trim(), type: document.getElementById('orderType').value, status: document.getElementById('orderStatus').value, delivery: document.getElementById('deliveryStatus').value, notes: document.getElementById('orderNotes').value.trim(), total, paid, remaining: total - paid };
+            // القيم الافتراضية للحقول الفارغة
+            const custNameVal = document.getElementById('custName').value.trim() || 'بدون اسم';
+            const custPhoneVal = document.getElementById('custPhone').value.trim() || 'غير متوفر';
+            const soNumberVal = document.getElementById('orderSoNumber').value.trim();
+            const notesVal = document.getElementById('orderNotes').value.trim();
+            
+            let newOrder = { 
+                id: Date.now(), 
+                date: formattedDate, 
+                branch: orderBranch, 
+                soNumber: soNumberVal, 
+                name: custNameVal, 
+                phone: custPhoneVal, 
+                type: document.getElementById('orderType').value, 
+                status: document.getElementById('orderStatus').value, 
+                delivery: document.getElementById('deliveryStatus').value, 
+                notes: notesVal, 
+                total, 
+                paid, 
+                remaining: total - paid 
+            };
             orders.unshift(newOrder);
             await saveOrderToFirestore(newOrder);
             this.reset();
@@ -517,7 +549,7 @@
         // ========== مودال التعديل ==========
         function openEditModal(id) { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let o = orders.find(o=>o.id===id); if (!o) return; document.getElementById('editId').value = o.id; const parts = o.date.split('/'); if (parts.length === 3) document.getElementById('editDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`; else document.getElementById('editDate').value = ''; document.getElementById('editName').value = o.name; document.getElementById('editPhone').value = o.phone; document.getElementById('editSoNumber').value = o.soNumber || ''; document.getElementById('editType').value = o.type; document.getElementById('editStatus').value = o.status; document.getElementById('editDelivery').value = o.delivery || 'لم يتم'; document.getElementById('editTotal').value = o.total; document.getElementById('editPaid').value = o.paid; document.getElementById('editRemaining').value = o.remaining; document.getElementById('editNotes').value = o.notes || ''; document.getElementById('editModal').classList.add('active'); }
         function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
-        document.getElementById('editForm').addEventListener('submit', async function(e) { e.preventDefault(); if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let id = parseInt(document.getElementById('editId').value); let o = orders.find(o=>o.id===id); if (o) { const dateValue = document.getElementById('editDate').value; if (!dateValue) return showAlert('يرجى اختيار التاريخ'); const [y, m, d] = dateValue.split('-'); o.date = `${d}/${m}/${y}`; o.name = document.getElementById('editName').value; o.phone = document.getElementById('editPhone').value; o.soNumber = document.getElementById('editSoNumber').value; o.type = document.getElementById('editType').value; o.status = document.getElementById('editStatus').value; o.delivery = document.getElementById('editDelivery').value; o.total = parseFloat(document.getElementById('editTotal').value)||0; o.paid = parseFloat(document.getElementById('editPaid').value)||0; o.remaining = Math.max(0, o.total - o.paid); o.notes = document.getElementById('editNotes').value; await saveOrderToFirestore(o); renderTable(); closeEditModal(); } });
+        document.getElementById('editForm').addEventListener('submit', async function(e) { e.preventDefault(); if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let id = parseInt(document.getElementById('editId').value); let o = orders.find(o=>o.id===id); if (o) { const dateValue = document.getElementById('editDate').value; let formattedDate = o.date; if (dateValue) { const [y, m, d] = dateValue.split('-'); formattedDate = `${d}/${m}/${y}`; } o.date = formattedDate; o.name = document.getElementById('editName').value.trim() || 'بدون اسم'; o.phone = document.getElementById('editPhone').value.trim() || 'غير متوفر'; o.soNumber = document.getElementById('editSoNumber').value.trim(); o.type = document.getElementById('editType').value; o.status = document.getElementById('editStatus').value; o.delivery = document.getElementById('editDelivery').value; o.total = parseFloat(document.getElementById('editTotal').value)||0; o.paid = parseFloat(document.getElementById('editPaid').value)||0; o.remaining = Math.max(0, o.total - o.paid); o.notes = document.getElementById('editNotes').value.trim(); await saveOrderToFirestore(o); renderTable(); closeEditModal(); } });
 
         // ========== إدارة الفروع (UI) ==========
         function openBranchesModal() { if (!currentUser || currentUser.role !== 'super_admin') return; renderBranchesList(); document.getElementById('branchesModal').classList.add('active'); }
