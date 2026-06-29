@@ -118,7 +118,7 @@
                     <div>
                         <h1 class="text-xl font-extrabold tracking-tight">نور للبصريات</h1>
                         <p class="text-sm text-white/80 flex items-center gap-1">
-                            <i class="fa-solid fa-shop"></i> <span id="currentBranchName">رشيد</span>
+                            <i class="fa-solid fa-shop"></i> <span id="currentBranchName">كل الفروع</span>
                         </p>
                     </div>
                 </div>
@@ -133,6 +133,10 @@
                     </span>
                     <button onclick="toggleDarkMode()" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" title="الوضع الليلي">
                         <i id="darkModeIcon" class="fa-solid fa-moon"></i>
+                    </button>
+                    <!-- أزرار الإدارة -->
+                    <button onclick="openUsersModal()" id="manageUsersBtn" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" title="إدارة المستخدمين">
+                        <i class="fa-solid fa-users-gear"></i>
                     </button>
                     <button onclick="openQuickAdd()" id="headerQuickAddBtn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-bold transition-colors">
                         <i class="fa-solid fa-bolt text-yellow-300 ml-1"></i> إضافة سريعة
@@ -282,6 +286,31 @@
             <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تخصيص الأعمدة</h3><button onclick="closeColumnSettings()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div><div class="space-y-3 max-h-80 overflow-y-auto" id="columnsCheckboxes"></div><button onclick="saveColumnSettings()" class="mt-5 w-full odoo-btn-primary py-3 text-lg">حفظ الإعدادات</button></div>
         </div>
 
+        <div id="usersModal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 650px;">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">إدارة المستخدمين</h3>
+                    <button onclick="closeUsersModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+                <div class="space-y-3 mb-5 max-h-60 overflow-y-auto" id="usersList"></div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-4 mt-4">
+                    <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-3">إضافة مستخدم جديد</h4>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="newUsername" class="odoo-input" placeholder="اسم المستخدم">
+                        <input type="password" id="newUserPassword" class="odoo-input" placeholder="كلمة المرور (6 خانات)">
+                        <input type="text" id="newUserDisplayName" class="odoo-input" placeholder="الاسم الظاهر">
+                        <select id="newUserRole" class="odoo-input">
+                            <option value="super_admin">مدير عام</option>
+                            <option value="branch_admin" selected>مدير فرع</option>
+                            <option value="user">موظف</option>
+                        </select>
+                        <select id="newUserBranch" class="odoo-input"></select>
+                    </div>
+                    <button onclick="addNewUser()" class="w-full odoo-btn-primary py-2 text-base">إضافة</button>
+                </div>
+            </div>
+        </div>
+
         <div id="confirmModal" class="modal-overlay">
             <div class="modal-content text-center"><div class="text-5xl mb-4 text-rose-500"><i class="fa-solid fa-circle-question"></i></div><h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" id="confirmMessage"></h3><div class="flex justify-center gap-5 mt-6"><button onclick="confirmAction(false)" class="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500 py-2.5 px-8 rounded-lg font-bold text-lg">إلغاء</button><button onclick="confirmAction(true)" class="bg-rose-500 hover:bg-rose-600 text-white py-2.5 px-8 rounded-lg font-bold text-lg">تأكيد</button></div></div>
         </div>
@@ -294,8 +323,6 @@
             <p class="text-base text-slate-400 dark:text-slate-300">نظام تتبع نور للبصريات &copy; 2026</p>
             <p class="text-base text-slate-500 dark:text-slate-400 mt-1">Made with <span class="text-red-500">❤️</span> by Mohammed Hussein 2026</p>
         </footer>
-    </div>
-
     <script>
         // ========== إعدادات Firebase ==========
         const firebaseConfig = {
@@ -313,7 +340,7 @@
         let currentUser = null;
         let orders = [];
         let branches = ['رشيد', 'سموحة', 'دمنهور'];
-        let currentBranch = 'رشيد';
+        let currentBranch = 'all';
         let currentFilter = 'all';
         let currentTab = 'main';
 
@@ -354,9 +381,15 @@
                 const doc = await db.collection('branches').doc('list').get();
                 if (doc.exists && doc.data().names) { branches = doc.data().names; }
                 else { await db.collection('branches').doc('list').set({ names: branches }); }
-                const savedBranch = localStorage.getItem('noor_current_branch');
-                if (savedBranch && branches.includes(savedBranch)) { currentBranch = savedBranch; }
-                else if (branches.length > 0) { currentBranch = branches[0]; }
+                if (currentUser?.role === 'super_admin') {
+                    const savedBranch = localStorage.getItem('noor_current_branch');
+                    if (savedBranch && (savedBranch === 'all' || branches.includes(savedBranch))) currentBranch = savedBranch;
+                    else currentBranch = 'all';
+                } else if (currentUser?.role === 'branch_admin') {
+                    currentBranch = currentUser.branch;
+                } else {
+                    currentBranch = branches[0] || 'رشيد';
+                }
                 populateBranchSelect();
             } catch (e) { console.error('فشل تحميل الفروع:', e); const localBranches = localStorage.getItem('noor_branches'); if (localBranches) branches = JSON.parse(localBranches); populateBranchSelect(); }
         }
@@ -388,11 +421,13 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 document.getElementById('loggedUserInfo').innerText = currentUser.name;
-                if (currentUser.role === 'branch_admin') { currentBranch = currentUser.branch; localStorage.setItem('noor_current_branch', currentBranch); }
+                if (currentUser.role === 'super_admin') currentBranch = 'all';
+                else if (currentUser.role === 'branch_admin') currentBranch = currentUser.branch;
+                else currentBranch = branches[0] || 'رشيد';
                 await loadBranchesFromFirestore();
                 await loadColumnSettings();
                 applyRolePermissions();
-                document.getElementById('currentBranchName').innerText = currentBranch;
+                document.getElementById('currentBranchName').innerText = currentBranch === 'all' ? 'كل الفروع' : currentBranch;
                 document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
                 await loadData();
                 switchTab('main');
@@ -411,12 +446,38 @@
             document.getElementById('headerQuickAddBtn').style.display = isAdmin ? '' : 'none';
             document.getElementById('importJSONLabel').style.display = isAdmin ? '' : 'none';
             document.getElementById('manageBranchesBtn').style.display = isSuperAdmin ? '' : 'none';
+            document.getElementById('manageUsersBtn').style.display = isSuperAdmin ? '' : 'none';
             const branchSelector = document.getElementById('branchSelectorContainer');
             if (branchSelector) branchSelector.style.display = (role === 'branch_admin') ? 'none' : '';
         }
 
-        function switchBranch(b) { if (currentUser?.role === 'branch_admin') return; currentBranch = b; localStorage.setItem('noor_current_branch', b); document.getElementById('currentBranchName').innerText = b; renderTable(); if (currentTab === 'reports') renderAllReports(); }
-        function populateBranchSelect() { const select = document.getElementById('branchSelect'); if (select) select.innerHTML = branches.map(b => `<option value="${b}" ${b === currentBranch ? 'selected' : ''}>${b}</option>`).join(''); }
+        // ========== تغيير الفرع ==========
+        function switchBranch(b) {
+            if (currentUser?.role === 'branch_admin') return;
+            currentBranch = b;
+            localStorage.setItem('noor_current_branch', currentBranch);
+            document.getElementById('currentBranchName').innerText = currentBranch === 'all' ? 'كل الفروع' : currentBranch;
+            renderTable();
+            if (currentTab === 'reports') renderAllReports();
+        }
+
+        // ========== ملء قائمة الفروع ==========
+        function populateBranchSelect() {
+            const select = document.getElementById('branchSelect');
+            if (!select) return;
+            let options = '';
+            if (currentUser?.role === 'super_admin') {
+                options += `<option value="all" ${currentBranch === 'all' ? 'selected' : ''}>🌐 الكل</option>`;
+            }
+            options += branches.map(b => `<option value="${b}" ${b === currentBranch ? 'selected' : ''}>${b}</option>`).join('');
+            select.innerHTML = options;
+            
+            // ملء قائمة الفروع في نموذج إضافة المستخدمين
+            const userBranchSelect = document.getElementById('newUserBranch');
+            if (userBranchSelect) {
+                userBranchSelect.innerHTML = branches.map(b => `<option value="${b}">${b}</option>`).join('');
+            }
+        }
 
         function switchTab(tab) { currentTab = tab; document.getElementById('mainTabContent').classList.toggle('hidden', tab !== 'main'); document.getElementById('reportsTabContent').classList.toggle('hidden', tab !== 'reports'); ['tabMain','tabReports'].forEach(id => document.getElementById(id).classList.remove('text-white','border-white')); const active = document.getElementById(tab === 'main' ? 'tabMain' : 'tabReports'); active.classList.add('text-white','border-white'); if (tab === 'reports') renderAllReports(); }
 
@@ -434,7 +495,11 @@
             const [y, m, d] = dateValue.split('-');
             const formattedDate = `${d}/${m}/${y}`;
             let total = parseFloat(document.getElementById('totalPrice').value)||0, paid = parseFloat(document.getElementById('paidAmount').value)||0;
-            let newOrder = { id: Date.now(), date: formattedDate, branch: currentBranch, soNumber: document.getElementById('orderSoNumber').value.trim(), name: document.getElementById('custName').value.trim(), phone: document.getElementById('custPhone').value.trim(), type: document.getElementById('orderType').value, status: document.getElementById('orderStatus').value, delivery: document.getElementById('deliveryStatus').value, notes: document.getElementById('orderNotes').value.trim(), total, paid, remaining: total - paid };
+            let orderBranch = currentBranch;
+            if (currentUser.role === 'super_admin' && currentBranch === 'all') {
+                orderBranch = branches[0] || 'رشيد';
+            }
+            let newOrder = { id: Date.now(), date: formattedDate, branch: orderBranch, soNumber: document.getElementById('orderSoNumber').value.trim(), name: document.getElementById('custName').value.trim(), phone: document.getElementById('custPhone').value.trim(), type: document.getElementById('orderType').value, status: document.getElementById('orderStatus').value, delivery: document.getElementById('deliveryStatus').value, notes: document.getElementById('orderNotes').value.trim(), total, paid, remaining: total - paid };
             orders.unshift(newOrder);
             await saveOrderToFirestore(newOrder);
             this.reset();
@@ -461,6 +526,132 @@
         async function addBranch() { const name = document.getElementById('newBranchName').value.trim(); if (!name) return showAlert('أدخل اسم الفرع'); if (branches.includes(name)) return showAlert('الفرع موجود'); branches.push(name); await saveBranchesToFirestore(); document.getElementById('newBranchName').value = ''; populateBranchSelect(); renderBranchesList(); }
         async function editBranch(index) { const newName = prompt('اسم الفرع الجديد:', branches[index]); if (newName && newName.trim() && !branches.includes(newName.trim())) { const old = branches[index]; branches[index] = newName.trim(); orders.forEach(o => { if (o.branch === old) o.branch = newName.trim(); }); if (currentBranch === old) switchBranch(newName.trim()); await saveBranchesToFirestore(); for (const o of orders) { if (o.branch === newName || o.branch === old) await saveOrderToFirestore(o); } populateBranchSelect(); renderBranchesList(); renderTable(); } else if (newName && branches.includes(newName.trim())) showAlert('الفرع موجود'); }
         async function deleteBranch(index) { if (branches.length <= 1) return showAlert('يجب وجود فرع واحد على الأقل'); const branchToDelete = branches[index]; showConfirm(`حذف فرع "${branchToDelete}" سينقل طلباته إلى "عام". متابعة؟`, async function(ok) { if (ok) { orders.forEach(o => { if (o.branch === branchToDelete) o.branch = 'عام'; }); branches.splice(index, 1); if (currentBranch === branchToDelete) switchBranch(branches[0]); await saveBranchesToFirestore(); for (const o of orders) { if (o.branch === 'عام') await saveOrderToFirestore(o); } populateBranchSelect(); renderBranchesList(); renderTable(); } }); }
+
+        // ========== إدارة المستخدمين (UI) ==========
+        function openUsersModal() {
+            if (!currentUser || currentUser.role !== 'super_admin') return;
+            renderUsersList();
+            document.getElementById('usersModal').classList.add('active');
+        }
+        function closeUsersModal() { document.getElementById('usersModal').classList.remove('active'); }
+
+        async function renderUsersList() {
+            const container = document.getElementById('usersList');
+            if (!container) return;
+            try {
+                const snapshot = await db.collection('users').get();
+                let html = '';
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const roleText = user.role === 'super_admin' ? 'مدير عام' : (user.role === 'branch_admin' ? 'مدير فرع' : 'موظف');
+                    html += `
+                    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
+                        <div>
+                            <span class="font-medium text-base dark:text-white">${user.name || doc.id}</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 mr-2">(${doc.id})</span>
+                            <span class="badge bg-odoo-100 text-odoo-700 dark:bg-odoo-800 dark:text-odoo-200 text-xs px-2 py-0.5 rounded-full mr-2">${roleText}</span>
+                            <span class="text-xs text-slate-500">${user.branch || ''}</span>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editUser('${doc.id}')" class="text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteUser('${doc.id}')" class="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html || '<p class="text-slate-400 text-center">لا يوجد مستخدمين</p>';
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = '<p class="text-red-500 text-center">فشل تحميل المستخدمين</p>';
+            }
+        }
+
+        async function addNewUser() {
+            const username = document.getElementById('newUsername').value.trim().toLowerCase();
+            const password = document.getElementById('newUserPassword').value;
+            const displayName = document.getElementById('newUserDisplayName').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            const branch = document.getElementById('newUserBranch').value;
+
+            if (!username || !password || !displayName) return showAlert('يرجى ملء جميع الحقول');
+            if (password.length < 6) return showAlert('كلمة المرور يجب أن تكون 6 خانات على الأقل');
+
+            try {
+                // إنشاء المستخدم في Firebase Auth
+                await auth.createUserWithEmailAndPassword(username + '@noor.com', password);
+                // حفظ البيانات في Firestore
+                await db.collection('users').doc(username).set({
+                    name: displayName,
+                    role: role,
+                    branch: role === 'super_admin' ? 'all' : branch
+                });
+                // تفريغ الحقول
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newUserPassword').value = '';
+                document.getElementById('newUserDisplayName').value = '';
+                renderUsersList();
+                showAlert('تم إضافة المستخدم بنجاح');
+            } catch(e) {
+                console.error(e);
+                if (e.code === 'auth/email-already-in-use') {
+                    showAlert('اسم المستخدم موجود بالفعل');
+                } else {
+                    showAlert('فشل إضافة المستخدم: ' + e.message);
+                }
+            }
+        }
+
+        async function editUser(username) {
+            const doc = await db.collection('users').doc(username).get();
+            if (!doc.exists) return;
+            const user = doc.data();
+            
+            const newName = prompt('الاسم الجديد:', user.name);
+            if (newName === null) return;
+            
+            const roleOptions = ['super_admin', 'branch_admin', 'user'];
+            const roleText = ['مدير عام', 'مدير فرع', 'موظف'];
+            const currentRoleIndex = roleOptions.indexOf(user.role);
+            const newRoleIndex = prompt(`الدور الجديد:\n0 - مدير عام\n1 - مدير فرع\n2 - موظف`, currentRoleIndex);
+            if (newRoleIndex === null) return;
+            const newRole = roleOptions[parseInt(newRoleIndex)] || user.role;
+            
+            let newBranch = user.branch;
+            if (newRole === 'branch_admin' || newRole === 'user') {
+                newBranch = prompt('الفرع:', user.branch);
+                if (newBranch === null) return;
+            } else {
+                newBranch = 'all';
+            }
+
+            try {
+                await db.collection('users').doc(username).update({
+                    name: newName,
+                    role: newRole,
+                    branch: newBranch
+                });
+                renderUsersList();
+                showAlert('تم تحديث المستخدم بنجاح');
+            } catch(e) {
+                console.error(e);
+                showAlert('فشل تحديث المستخدم');
+            }
+        }
+
+        async function deleteUser(username) {
+            if (username === 'admin') return showAlert('لا يمكن حذف المدير العام الافتراضي');
+            showConfirm(`هل أنت متأكد من حذف المستخدم "${username}"؟`, async function(ok) {
+                if (ok) {
+                    try {
+                        await db.collection('users').doc(username).delete();
+                        renderUsersList();
+                        showAlert('تم حذف المستخدم من قاعدة البيانات. يرجى حذفه يدوياً من Firebase Auth إذا لزم الأمر.');
+                    } catch(e) {
+                        console.error(e);
+                        showAlert('فشل حذف المستخدم');
+                    }
+                }
+            });
+        }
 
         // ========== تخصيص الأعمدة ==========
         function openColumnSettings() { document.getElementById('columnsCheckboxes').innerHTML = allColumns.map(col => `<label class="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer"><input type="checkbox" ${col.visible?'checked':''} data-column-id="${col.id}" class="column-checkbox w-5 h-5 text-odoo-500 rounded"><span class="text-base font-medium text-slate-700 dark:text-slate-200">${col.name}</span></label>`).join(''); document.getElementById('columnSettingsModal').classList.add('active'); }
@@ -489,8 +680,14 @@
             const search = document.getElementById('searchBar').value.toLowerCase();
             
             let branchOrders;
-            if (currentUser?.role === 'super_admin') { branchOrders = orders; }
-            else { branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentUser.branch); }
+            if (currentUser?.role === 'super_admin') {
+                if (currentBranch === 'all') branchOrders = orders;
+                else branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            } else if (currentUser?.role === 'branch_admin') {
+                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentUser.branch);
+            } else {
+                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            }
             
             let totalCount = branchOrders.length, officeCount = 0, shopCount = 0, debtSum = 0;
             branchOrders.forEach(o => { if (o.status === 'في المكتب') officeCount++; else if (o.status === 'بالمحل') shopCount++; if (o.remaining > 0) debtSum += o.remaining; });
