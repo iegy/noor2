@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl" class="">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة وتتبع الطلبات - نظارات نور (متعدد الفروع)</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
-    <script>
+     <meta charset="UTF-8" />    <meta content="width=device-width, initial-scale=1.0" name="viewport" />    <title>نظام إدارة وتتبع الطلبات - نظارات نور (متعدد الفروع)</title>     <link href="https://fonts.googleapis.com" rel="preconnect" />    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" />    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />     <script src="https://cdn.tailwindcss.com"></script>    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -34,8 +15,7 @@
                 }
             }
         }
-    </script>
-    <style>
+    </script>    <style>
         body { font-family: 'Cairo', sans-serif; font-size: 16px; background: #f4f6f9; }
         .dark body { background: #1a202c; }
         .odoo-card { background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04); border: none; }
@@ -74,258 +54,752 @@
         .dark #branchSelect option { background: #2d3748; }
         .optional-label::after { content: " (اختياري)"; font-size: 12px; color: #94a3b8; font-weight: 400; }
         .dark .optional-label::after { color: #94a3b8; }
-    </style>
-</head>
-<body class="text-slate-800 antialiased">
-
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="login-container">
-        <div class="login-card">
-            <div class="text-center mb-8">
-                <img src="https://i.ibb.co/ZRzPPhJ4/Chat-GPT-Image-29-2026-07-06-53.png" alt="نور للبصريات" class="w-24 h-24 object-contain rounded-2xl shadow-lg mx-auto mb-4">
-                <h2 class="text-2xl font-extrabold text-slate-800">نظارات نور</h2>
-                <p class="text-base text-slate-500 mt-1">نظام تتبع متعدد الفروع</p>
-            </div>
-            <form id="loginForm" onsubmit="login(event)" class="space-y-5">
-                <div>
-                    <label class="block text-base font-semibold text-slate-600 mb-2">اسم المستخدم</label>
-                    <div class="relative">
-                        <span class="absolute right-3 top-3.5 text-slate-400"><i class="fa-regular fa-user"></i></span>
-                        <input type="text" id="usernameInput" class="w-full odoo-input pr-10 pl-4" placeholder="أدخل اسم المستخدم" autocomplete="off">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-base font-semibold text-slate-600 mb-2">كلمة المرور</label>
-                    <div class="relative">
-                        <span class="absolute right-3 top-3.5 text-slate-400"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" id="passwordInput" class="w-full odoo-input pr-10 pl-4" placeholder="••••••••" autocomplete="off">
-                    </div>
-                </div>
-                <button type="submit" class="w-full odoo-btn-primary py-3 text-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
-                </button>
-            </form>
-            <p class="text-sm text-slate-400 mt-8 text-center">Made with ❤️ by Mohammed Hussein 2026</p>
-        </div>
-    </div>
-
-    <!-- التطبيق الرئيسي -->
-    <div id="mainApp" class="min-h-screen flex flex-col hidden">
-
-        <!-- هيدر أودو -->
-        <header class="odoo-header no-print">
-            <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4">
-                    <img src="https://i.ibb.co/ZRzPPhJ4/Chat-GPT-Image-29-2026-07-06-53.png" alt="نور للبصريات" class="w-10 h-10 object-contain rounded-lg">
-                    <div>
-                        <h1 class="text-xl font-extrabold tracking-tight">نور للبصريات</h1>
-                        <p class="text-sm text-white/80 flex items-center gap-1">
-                            <i class="fa-solid fa-shop"></i> <span id="currentBranchName">كل الفروع</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <div class="flex items-center gap-1 bg-white/15 rounded-lg px-3 py-2" id="branchSelectorContainer">
-                        <i class="fa-solid fa-code-branch text-white/70 text-sm"></i>
-                        <select id="branchSelect" onchange="switchBranch(this.value)" class="bg-transparent text-white text-base font-bold border-none outline-none cursor-pointer"></select>
-                        <button onclick="openBranchesModal()" id="manageBranchesBtn" class="text-white/70 hover:text-white transition-colors"><i class="fa-solid fa-gear text-sm"></i></button>
-                    </div>
-                    <span class="text-sm bg-white/15 px-4 py-2 rounded-lg">
-                        <i class="fa-solid fa-user-tie ml-1"></i> <span id="loggedUserInfo"></span>
-                    </span>
-                    <button onclick="toggleDarkMode()" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" title="الوضع الليلي">
-                        <i id="darkModeIcon" class="fa-solid fa-moon"></i>
-                    </button>
-                    <!-- أزرار الإدارة -->
-                    <button onclick="openUsersModal()" id="manageUsersBtn" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" title="إدارة المستخدمين">
-                        <i class="fa-solid fa-users-gear"></i>
-                    </button>
-                    <button onclick="openQuickAdd()" id="headerQuickAddBtn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-bold transition-colors">
-                        <i class="fa-solid fa-bolt text-yellow-300 ml-1"></i> إضافة سريعة
-                    </button>
-                    <button onclick="changePassword()" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" title="تغيير كلمة المرور">
-                        <i class="fa-solid fa-lock"></i>
-                    </button>
-                    <button onclick="logout()" class="bg-white/15 hover:bg-rose-400/50 px-3 py-2 rounded-lg text-sm transition-colors" title="تسجيل الخروج">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="bg-white/10 border-t border-white/15">
-                <div class="max-w-7xl mx-auto px-6 flex gap-1">
-                    <button onclick="switchTab('main')" id="tabMain" class="px-5 py-3 text-base font-bold text-white border-b-2 border-white transition-colors"><i class="fa-solid fa-table-list ml-2"></i> الرئيسية</button>
-                    <button onclick="switchTab('reports')" id="tabReports" class="px-5 py-3 text-base font-medium text-white/70 hover:text-white transition-colors"><i class="fa-solid fa-chart-simple ml-2"></i> التقارير</button>
-                </div>
-            </div>
-        </header>
-
-        <!-- المحتوى الرئيسي -->
-        <main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8 print-container">
-            <div id="smartAlerts" class="mb-6 no-print"></div>
-
-            <div id="mainTabContent">
-                <!-- كروت الإحصائيات -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8 no-print">
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">إجمالي الحالات</p><h3 class="text-3xl font-bold text-slate-800 dark:text-white" id="statTotal">0</h3></div><div class="w-12 h-12 bg-odoo-50 text-odoo-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-folder-open text-xl"></i></div></div>
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">في المكتب</p><h3 class="text-3xl font-bold text-amber-600 dark:text-amber-400" id="statMiami">0</h3></div><div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-building text-xl"></i></div></div>
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">بالمحل</p><h3 class="text-3xl font-bold text-emerald-600 dark:text-emerald-400" id="statShop">0</h3></div><div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-circle-check text-xl"></i></div></div>
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">مديونيات</p><h3 class="text-2xl font-bold text-rose-600 dark:text-rose-400"><span id="statDebt">0</span><span class="text-base font-normal text-slate-400 dark:text-slate-300"> ج.م</span></h3></div><div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-hand-holding-dollar text-xl"></i></div></div>
-                </div>
-
-                <!-- نموذج الإدخال -->
-                <div class="mb-6 no-print" id="orderFormSection">
-                    <div class="odoo-card rounded-xl overflow-hidden">
-                        <div class="flex items-center justify-between p-5 cursor-pointer select-none" onclick="toggleOrderForm()" id="formToggleHeader">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-circle-plus text-odoo-500 text-xl"></i><h2 class="text-lg font-bold text-slate-800 dark:text-white">تسجيل معاملة جديدة <span class="text-sm font-normal text-slate-400">(جميع الحقول اختيارية)</span></h2></div>
-                            <i id="formToggleIcon" class="fa-solid fa-chevron-down text-slate-400 transition-transform text-lg"></i>
-                        </div>
-                        <div id="formCollapsible" class="collapsible-content">
-                            <div class="p-5 border-t border-slate-100 dark:border-slate-600">
-                                <form id="orderForm" class="space-y-5">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">تاريخ الإرسال</label><input type="date" id="orderDate" class="w-full odoo-input"></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">اسم العميل</label><input type="text" id="custName" class="w-full odoo-input" placeholder="محمد أحمد..."></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم التليفون</label><input type="tel" id="custPhone" class="w-full odoo-input text-right" placeholder="012xxxxxxx"></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input type="text" id="orderSoNumber" class="w-full odoo-input" placeholder="مثال: SO-00125"></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تصنيف العمل</label><select id="orderType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات جديدة</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select id="orderStatus" class="w-full odoo-input"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تسليم العميل</label><select id="deliveryStatus" class="w-full odoo-input"><option value="لم يتم">لم يتم ❌</option><option value="تم التسليم">تم التسليم ✅</option></select></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><textarea id="orderNotes" rows="2" class="w-full odoo-input" placeholder="ملاحظات..."></textarea></div>
-                                    </div>
-                                    <div class="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-xl space-y-4">
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input type="number" id="totalPrice" min="0" class="w-full odoo-input" oninput="calcRemaining()" placeholder="0.00"></div>
-                                            <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input type="number" id="paidAmount" min="0" class="w-full odoo-input" oninput="calcRemaining()" placeholder="0.00"></div>
-                                        </div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input type="number" id="remainingAmount" class="w-full bg-white dark:bg-gray-500 border border-slate-200 dark:border-gray-600 rounded-lg py-2 px-3 text-base font-bold" readonly value="0"></div>
-                                    </div>
-                                    <button type="submit" class="w-full odoo-btn-primary py-3 text-lg flex items-center justify-center gap-2"><i class="fa-solid fa-square-check"></i> حفظ وإدراج</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- الجدول -->
-                <div class="w-full" id="tableSection">
-                    <div class="odoo-card rounded-xl p-4 mb-5 flex flex-col md:flex-row justify-between items-center gap-4 no-print flex-wrap">
-                        <div class="flex flex-wrap gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                            <button onclick="filterTable('all')" id="btnFilterAll" class="filter-btn px-4 py-2 rounded-lg text-base font-bold bg-white dark:bg-slate-500 text-odoo-700 dark:text-white shadow-sm">الكل</button>
-                            <button onclick="filterTable('office')" id="btnFilterOffice" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">في المكتب</button>
-                            <button onclick="filterTable('shop')" id="btnFilterShop" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">بالمحل</button>
-                            <button onclick="filterTable('ready')" id="btnFilterReady" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30">⏳ جاهز للتسليم</button>
-                            <button onclick="filterTable('debt')" id="btnFilterDebt" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30">باقي مالي</button>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openColumnSettings()" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-solid fa-gear"></i></button>
-                            <button onclick="exportExcel()" class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-regular fa-file-excel"></i> إكسل</button>
-                            <button onclick="triggerCleanPrint()" class="bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                            <button onclick="exportJSON()" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-solid fa-download"></i> JSON</button>
-                            <label id="importJSONLabel" class="bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-upload"></i> استيراد<input type="file" id="importJSONFile" accept=".json" class="hidden" onchange="importJSON(event)"></label>
-                        </div>
-                    </div>
-                    <div class="relative mb-5 no-print">
-                        <span class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-magnifying-glass text-xl"></i></span>
-                        <input type="text" id="searchBar" oninput="searchOrders()" class="w-full odoo-input py-3 pr-12 pl-4 text-lg" placeholder="ابحث عن اسم العميل أو رقم التليفون...">
-                    </div>
-                    <div class="odoo-card rounded-xl overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-right border-collapse" id="mainOrdersTable">
-                                <thead><tr class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-base font-bold"></tr></thead>
-                                <tbody id="tableBody" class="text-base divide-y divide-slate-100 dark:divide-slate-600"></tbody>
-                            </table>
-                        </div>
-                        <div id="noDataView" class="hidden p-12 text-center no-print"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-2xl mx-auto mb-3"><i class="fa-solid fa-inbox"></i></div><p class="text-slate-400 dark:text-slate-300 text-base font-medium">لا توجد طلبات تطابق الفلتر الحالي.</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- التقارير -->
-            <div id="reportsTabContent" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-building text-amber-500 ml-2"></i> الموجود في المكتب</h3><button onclick="printReport('office')" class="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportOffice" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-check-circle text-emerald-500 ml-2"></i> المستلم في المحل</h3><button onclick="printReport('received')" class="text-sm bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportReceived" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-users text-sky-500 ml-2"></i> كشف العملاء</h3><button onclick="printReport('customers')" class="text-sm bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportCustomers" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-clock text-rose-500 ml-2"></i> المتأخرات</h3><button onclick="printReport('delayed')" class="text-sm bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportDelayed" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-money-bill-wave text-green-500 ml-2"></i> تقرير مالي</h3><button onclick="printReport('financial')" class="text-sm bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportFinancial" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-calendar-day text-purple-500 ml-2"></i> تقرير يومي</h3><button onclick="printReport('daily')" class="text-sm bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportDaily" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                </div>
-            </div>
-        </main>
-
-        <!-- المودالات -->
-        <div id="passwordModal" class="modal-overlay">
-            <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تغيير كلمة المرور</h3><button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
-                <form id="passwordForm" onsubmit="saveNewPassword(event)" class="space-y-5">
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">كلمة المرور الحالية</label><input type="password" id="currentPassword" class="w-full odoo-input" required></div>
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">كلمة المرور الجديدة</label><input type="password" id="newPassword" class="w-full odoo-input" required></div>
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تأكيد كلمة المرور الجديدة</label><input type="password" id="confirmNewPassword" class="w-full odoo-input" required></div>
-                    <button type="submit" class="w-full odoo-btn-primary py-3 text-lg">حفظ كلمة المرور الجديدة</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="editModal" class="modal-overlay">
-            <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تعديل الطلب</h3><button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
-                <form id="editForm" class="space-y-5">
-                    <input type="hidden" id="editId">
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">تاريخ الإرسال</label><input type="date" id="editDate" class="w-full odoo-input"></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الاسم</label><input type="text" id="editName" class="w-full odoo-input"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الهاتف</label><input type="text" id="editPhone" class="w-full odoo-input"></div></div>
-                    <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input type="text" id="editSoNumber" class="w-full odoo-input"></div>
-                    <div class="grid grid-cols-3 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input type="number" id="editTotal" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input type="number" id="editPaid" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input type="number" id="editRemaining" class="w-full bg-slate-100 dark:bg-slate-600 rounded-lg py-2 px-3 text-base font-bold" readonly></div></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">النوع</label><select id="editType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select id="editStatus" class="w-full odoo-input"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select></div></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التسليم</label><select id="editDelivery" class="w-full odoo-input"><option value="لم يتم">لم يتم</option><option value="تم التسليم">تم التسليم</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><input type="text" id="editNotes" class="w-full odoo-input"></div></div>
-                    <button type="submit" class="w-full odoo-btn-primary py-3 text-lg"><i class="fa-solid fa-floppy-disk ml-2"></i> حفظ التعديلات</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="branchesModal" class="modal-overlay">
-            <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">إدارة الفروع</h3><button onclick="closeBranchesModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div><div class="space-y-3 mb-5 max-h-60 overflow-y-auto" id="branchesList"></div><div class="flex gap-2"><input type="text" id="newBranchName" class="flex-1 odoo-input" placeholder="اسم الفرع الجديد"><button onclick="addBranch()" class="odoo-btn-primary">إضافة</button></div></div>
-        </div>
-
-        <div id="columnSettingsModal" class="modal-overlay">
-            <div class="modal-content"><div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تخصيص الأعمدة</h3><button onclick="closeColumnSettings()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div><div class="space-y-3 max-h-80 overflow-y-auto" id="columnsCheckboxes"></div><button onclick="saveColumnSettings()" class="mt-5 w-full odoo-btn-primary py-3 text-lg">حفظ الإعدادات</button></div>
-        </div>
-
-        <div id="usersModal" class="modal-overlay">
-            <div class="modal-content" style="max-width: 650px;">
-                <div class="flex justify-between items-center mb-5">
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">إدارة المستخدمين</h3>
-                    <button onclick="closeUsersModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button>
-                </div>
-                <div class="space-y-3 mb-5 max-h-60 overflow-y-auto" id="usersList"></div>
-                <div class="border-t border-slate-200 dark:border-slate-600 pt-4 mt-4">
-                    <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-3">إضافة مستخدم جديد</h4>
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <input type="text" id="newUsername" class="odoo-input" placeholder="اسم المستخدم">
-                        <input type="password" id="newUserPassword" class="odoo-input" placeholder="كلمة المرور (6 خانات)">
-                        <input type="text" id="newUserDisplayName" class="odoo-input" placeholder="الاسم الظاهر">
-                        <select id="newUserRole" class="odoo-input">
+        .pagination-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.4rem 1rem; font-weight: 600; color: #334155; transition: all 0.2s; }
+        .dark .pagination-btn { background: #475569; border-color: #64748b; color: #e2e8f0; }
+        .pagination-btn:hover:not(:disabled) { background: #e2e8f0; }
+        .dark .pagination-btn:hover:not(:disabled) { background: #64748b; }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>     
+<!--  شاشة تسجيل الدخول  -->    
+<div class="login-container" id="loginScreen">
+	        
+	<div class="login-card">
+		            
+		<div class="text-center mb-8">
+			                <img class="w-24 h-24 object-contain rounded-2xl shadow-lg mx-auto mb-4" alt="نور للبصريات" src="https://i.ibb.co/ZRzPPhJ4/Chat-GPT-Image-29-2026-07-06-53.png" />                
+			<h2 class="text-2xl font-extrabold text-slate-800">
+				نظارات نور
+			</h2>
+			                
+			<p class="text-base text-slate-500 mt-1">
+				نظام تتبع متعدد الفروع
+			</p>
+			            
+		</div>
+		            
+		<form class="space-y-5" onsubmit="login(event)" id="loginForm">
+			                
+			<div>
+				                    <label class="block text-base font-semibold text-slate-600 mb-2">اسم المستخدم</label>                    
+				<div class="relative">
+					                        <span class="absolute right-3 top-3.5 text-slate-400"><em class="fa-regular fa-user"></em></span>                        <input autocomplete="off" placeholder="أدخل اسم المستخدم" class="w-full odoo-input pr-10 pl-4" id="usernameInput" type="text" />                    
+				</div>
+				                
+			</div>
+			                
+			<div>
+				                    <label class="block text-base font-semibold text-slate-600 mb-2">كلمة المرور</label>                    
+				<div class="relative">
+					                        <span class="absolute right-3 top-3.5 text-slate-400"><em class="fa-solid fa-lock"></em></span>                        <input autocomplete="off" placeholder="••••••••" class="w-full odoo-input pr-10 pl-4" id="passwordInput" type="password" />                    
+				</div>
+				                
+			</div>
+			                
+			<button class="w-full odoo-btn-primary py-3 text-lg flex items-center justify-center gap-2" type="submit">
+				                    <em class="fa-solid fa-right-to-bracket"></em> تسجيل الدخول                
+			</button>
+			            
+		</form>
+		            
+		<p class="text-sm text-slate-400 mt-8 text-center">
+			Made with ❤️ by Mohammed Hussein 2026
+		</p>
+		        
+	</div>
+	    
+</div>
+     
+<!--  التطبيق الرئيسي  -->    
+<div class="min-h-screen flex flex-col hidden" id="mainApp">
+	         
+	<!--  هيدر أودو  -->        <header class="odoo-header no-print">            </header>
+	<div style="" class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+		                
+		<div class="flex items-center gap-4">
+			                    <img class="w-10 h-10 object-contain rounded-lg" alt="نور للبصريات" src="https://i.ibb.co/ZRzPPhJ4/Chat-GPT-Image-29-2026-07-06-53.png" />                    
+			<div>
+				                        
+				<h1 class="text-xl font-extrabold tracking-tight">
+					نور للبصريات
+				</h1>
+				                        
+				<p class="text-sm text-white/80 flex items-center gap-1">
+					                            <em class="fa-solid fa-shop"></em> <span id="currentBranchName">كل الفروع</span>                        
+				</p>
+				                    
+			</div>
+			                
+		</div>
+		                
+		<div class="flex items-center gap-3 flex-wrap">
+			                    
+			<div id="branchSelectorContainer" class="flex items-center gap-1 bg-white/15 rounded-lg px-3 py-2">
+				                        <em class="fa-solid fa-code-branch text-white/70 text-sm"></em>                        <select class="bg-transparent text-white text-base font-bold border-none outline-none cursor-pointer" onchange="switchBranch(this.value)" id="branchSelect"></select>                        
+				<button class="text-white/70 hover:text-white transition-colors" id="manageBranchesBtn" onclick="openBranchesModal()">
+					<em class="fa-solid fa-gear text-sm">
+					</em>
+				</button>
+				                    
+			</div>
+			                    <span class="text-sm bg-white/15 px-4 py-2 rounded-lg">                        <em class="fa-solid fa-user-tie ml-1"></em> <span id="loggedUserInfo"></span>                    </span>                    
+			<button title="الوضع الليلي" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" onclick="toggleDarkMode()">
+				                        <em id="darkModeIcon" class="fa-solid fa-moon"></em>                    
+			</button>
+			                    
+			<button title="إدارة المستخدمين" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" id="manageUsersBtn" onclick="openUsersModal()">
+				                        <em class="fa-solid fa-users-gear"></em>                    
+			</button>
+			                    
+			<button class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-bold transition-colors" id="headerQuickAddBtn" onclick="openQuickAdd()">
+				                        <em class="fa-solid fa-bolt text-yellow-300 ml-1"></em> إضافة سريعة                    
+			</button>
+			                    
+			<button title="تغيير كلمة المرور" class="bg-white/15 hover:bg-white/20 px-3 py-2 rounded-lg text-sm transition-colors" onclick="changePassword()">
+				                        <em class="fa-solid fa-lock"></em>                    
+			</button>
+			                    
+			<button title="تسجيل الخروج" class="bg-white/15 hover:bg-rose-400/50 px-3 py-2 rounded-lg text-sm transition-colors" onclick="logout()">
+				                        <em class="fa-solid fa-right-from-bracket"></em>                    
+			</button>
+			                
+		</div>
+		            
+	</div><header class="odoo-header no-print">            </header>
+	<div style="" class="bg-white/10 border-t border-white/15">
+		                
+		<div class="max-w-7xl mx-auto px-6 flex gap-1">
+			                    
+			<button class="px-5 py-3 text-base font-bold text-white border-b-2 border-white transition-colors" id="tabMain" onclick="switchTab('main')">
+				<em class="fa-solid fa-table-list ml-2">
+				</em> الرئيسية
+			</button>
+			                    
+			<button class="px-5 py-3 text-base font-medium text-white/70 hover:text-white transition-colors" id="tabReports" onclick="switchTab('reports')">
+				<em class="fa-solid fa-chart-simple ml-2">
+				</em> التقارير
+			</button>
+			                
+		</div>
+		            
+	</div><header class="odoo-header no-print">        </header>         
+	<!--  المحتوى الرئيسي  -->        <main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8 print-container">            </main>
+	<div style="" class="mb-6 no-print" id="smartAlerts">
+	</div><main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8 print-container">             </main>
+	<div style="" id="mainTabContent">
+		                
+		<!--  كروت الإحصائيات  -->                
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8 no-print">
+			                    
+			<div class="odoo-card p-5 rounded-xl flex items-center justify-between">
+				<div>
+					<p class="text-base font-medium text-slate-500 dark:text-slate-300">
+						إجمالي الحالات
+					</p>
+					<h3 id="statTotal" class="text-3xl font-bold text-slate-800 dark:text-white">
+						0
+					</h3>
+				</div>
+				<div class="w-12 h-12 bg-odoo-50 text-odoo-500 rounded-xl flex items-center justify-center">
+					<em class="fa-solid fa-folder-open text-xl">
+					</em>
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-5 rounded-xl flex items-center justify-between">
+				<div>
+					<p class="text-base font-medium text-slate-500 dark:text-slate-300">
+						في المكتب
+					</p>
+					<h3 id="statMiami" class="text-3xl font-bold text-amber-600 dark:text-amber-400">
+						0
+					</h3>
+				</div>
+				<div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+					<em class="fa-solid fa-building text-xl">
+					</em>
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-5 rounded-xl flex items-center justify-between">
+				<div>
+					<p class="text-base font-medium text-slate-500 dark:text-slate-300">
+						بالمحل
+					</p>
+					<h3 id="statShop" class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+						0
+					</h3>
+				</div>
+				<div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+					<em class="fa-solid fa-circle-check text-xl">
+					</em>
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-5 rounded-xl flex items-center justify-between">
+				<div>
+					<p class="text-base font-medium text-slate-500 dark:text-slate-300">
+						مديونيات
+					</p>
+					<h3 class="text-2xl font-bold text-rose-600 dark:text-rose-400">
+						<span id="statDebt">0</span><span class="text-base font-normal text-slate-400 dark:text-slate-300"> ج.م</span>
+					</h3>
+				</div>
+				<div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
+					<em class="fa-solid fa-hand-holding-dollar text-xl">
+					</em>
+				</div>
+			</div>
+			                
+		</div>
+		                 
+		<!--  نموذج الإدخال  -->                
+		<div id="orderFormSection" class="mb-6 no-print">
+			                    
+			<div class="odoo-card rounded-xl overflow-hidden">
+				                        
+				<div id="formToggleHeader" onclick="toggleOrderForm()" class="flex items-center justify-between p-5 cursor-pointer select-none">
+					                            
+					<div class="flex items-center gap-3">
+						<em class="fa-solid fa-circle-plus text-odoo-500 text-xl">
+						</em>
+						<h2 class="text-lg font-bold text-slate-800 dark:text-white">
+							تسجيل معاملة جديدة <span class="text-sm font-normal text-slate-400">(جميع الحقول اختيارية)</span>
+						</h2>
+					</div>
+					                            <em id="formToggleIcon" class="fa-solid fa-chevron-down text-slate-400 transition-transform text-lg"></em>                        
+				</div>
+				                        
+				<div class="collapsible-content" id="formCollapsible">
+					                            
+					<div class="p-5 border-t border-slate-100 dark:border-slate-600">
+						                                
+						<form class="space-y-5" id="orderForm">
+							                                    
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">تاريخ الإرسال</label><input class="w-full odoo-input" id="orderDate" type="date" />
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">اسم العميل</label><input placeholder="محمد أحمد..." class="w-full odoo-input" id="custName" type="text" />
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم التليفون</label><input placeholder="012xxxxxxx" class="w-full odoo-input text-right" id="custPhone" type="tel" />
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input placeholder="مثال: SO-00125" class="w-full odoo-input" id="orderSoNumber" type="text" />
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تصنيف العمل</label><select class="w-full odoo-input" id="orderType"><option value="نظارة وعدسات جديدة">نظارة وعدسات جديدة</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select>
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select class="w-full odoo-input" id="orderStatus"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select>
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تسليم العميل</label><select class="w-full odoo-input" id="deliveryStatus"><option value="لم يتم">لم يتم ❌</option><option value="تم التسليم">تم التسليم ✅</option></select>
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><textarea placeholder="ملاحظات..." class="w-full odoo-input" rows="2" id="orderNotes"></textarea>
+								</div>
+								                                    
+							</div>
+							                                    
+							<div class="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-xl space-y-4">
+								                                        
+								<div class="grid grid-cols-2 gap-4">
+									                                            
+									<div>
+										<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input placeholder="0.00" oninput="calcRemaining()" class="w-full odoo-input" min="0" id="totalPrice" type="number" />
+									</div>
+									                                            
+									<div>
+										<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input placeholder="0.00" oninput="calcRemaining()" class="w-full odoo-input" min="0" id="paidAmount" type="number" />
+									</div>
+									                                        
+								</div>
+								                                        
+								<div>
+									<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input value="0" readonly="" class="w-full bg-white dark:bg-gray-500 border border-slate-200 dark:border-gray-600 rounded-lg py-2 px-3 text-base font-bold" id="remainingAmount" type="number" />
+								</div>
+								                                    
+							</div>
+							                                    
+							<button class="w-full odoo-btn-primary py-3 text-lg flex items-center justify-center gap-2" type="submit">
+								<em class="fa-solid fa-square-check">
+								</em> حفظ وإدراج
+							</button>
+							                                
+						</form>
+						                            
+					</div>
+					                        
+				</div>
+				                    
+			</div>
+			                
+		</div>
+		                 
+		<!--  الجدول مع التصفّح  -->                
+		<div id="tableSection" class="w-full">
+			                    
+			<div class="odoo-card rounded-xl p-4 mb-5 flex flex-col md:flex-row justify-between items-center gap-4 no-print flex-wrap">
+				                        
+				<div class="flex flex-wrap gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+					                            
+					<button class="filter-btn px-4 py-2 rounded-lg text-base font-bold bg-white dark:bg-slate-500 text-odoo-700 dark:text-white shadow-sm" id="btnFilterAll" onclick="filterTable('all')">
+						الكل
+					</button>
+					                            
+					<button class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white" id="btnFilterOffice" onclick="filterTable('office')">
+						في المكتب
+					</button>
+					                            
+					<button class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white" id="btnFilterShop" onclick="filterTable('shop')">
+						بالمحل
+					</button>
+					                            
+					<button class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30" id="btnFilterReady" onclick="filterTable('ready')">
+						⏳ جاهز للتسليم
+					</button>
+					                            
+					<button class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30" id="btnFilterDebt" onclick="filterTable('debt')">
+						باقي مالي
+					</button>
+					                        
+				</div>
+				                        
+				<div class="flex flex-wrap items-center gap-2">
+					                            
+					<button class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1" onclick="openColumnSettings()">
+						<em class="fa-solid fa-gear">
+						</em>
+					</button>
+					                            
+					<button class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1" onclick="exportExcel()">
+						<em class="fa-regular fa-file-excel">
+						</em> إكسل
+					</button>
+					                            
+					<button class="bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1" onclick="triggerCleanPrint()">
+						<em class="fa-solid fa-file-pdf">
+						</em> PDF
+					</button>
+					                            
+					<button class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1" onclick="exportJSON()">
+						<em class="fa-solid fa-download">
+						</em> JSON
+					</button>
+					                            <label class="bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1 cursor-pointer" id="importJSONLabel"><em class="fa-solid fa-upload"></em> استيراد<input onchange="importJSON(event)" class="hidden" accept=".json" id="importJSONFile" type="file" /></label>                        
+				</div>
+				                    
+			</div>
+			                    
+			<div class="relative mb-5 no-print">
+				                        <span class="absolute right-4 top-4 text-slate-400"><em class="fa-solid fa-magnifying-glass text-xl"></em></span>                        <input placeholder="ابحث عن اسم العميل أو رقم التليفون..." class="w-full odoo-input py-3 pr-12 pl-4 text-lg" oninput="searchOrders()" id="searchBar" type="text" />                    
+			</div>
+			                    
+			<div class="odoo-card rounded-xl overflow-hidden">
+				                        
+				<div class="overflow-x-auto">
+					                            
+					<table id="mainOrdersTable" class="w-full text-right border-collapse">
+						                                
+						<thead>
+							<tr class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-base font-bold">
+							</tr>
+						</thead>
+						                                <tbody class="text-base divide-y divide-slate-100 dark:divide-slate-600" id="tableBody"></tbody>                            
+					</table>
+					                        
+				</div>
+				                        
+				<!--  أزرار التنقل بين الصفحات  -->                        
+				<div class="flex justify-between items-center px-4 py-3 border-t border-slate-200 dark:border-slate-600 no-print hidden" id="paginationControls">
+					                            
+					<button class="pagination-btn flex items-center gap-1" onclick="goToPage(currentPage - 1)" id="prevPageBtn">
+						                                <em class="fa-solid fa-chevron-right"></em> السابق                            
+					</button>
+					                            <span id="pageInfo" class="text-base font-medium text-slate-700 dark:text-slate-200"></span>                            
+					<button class="pagination-btn flex items-center gap-1" onclick="goToPage(currentPage + 1)" id="nextPageBtn">
+						                                التالي <em class="fa-solid fa-chevron-left"></em>                            
+					</button>
+					                        
+				</div>
+				                        
+				<div class="hidden p-12 text-center no-print" id="noDataView">
+					<div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
+						<em class="fa-solid fa-inbox">
+						</em>
+					</div>
+					<p class="text-slate-400 dark:text-slate-300 text-base font-medium">
+						لا توجد طلبات تطابق الفلتر الحالي.
+					</p>
+				</div>
+				                    
+			</div>
+			                
+		</div>
+		            
+	</div><main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8 print-container">             
+		<!--  التقارير (بدون تغيير)  -->            </main>
+	<div style="" class="hidden" id="reportsTabContent">
+		                
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+			                    
+			<div class="odoo-card p-6 rounded-xl">
+				<div class="flex justify-between items-start mb-4">
+					<h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">
+						<em class="fa-solid fa-building text-amber-500 ml-2">
+						</em> الموجود في المكتب
+					</h3>
+					<button class="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-lg font-bold" onclick="printReport('office')">
+						<em class="fa-solid fa-print ml-1">
+						</em> طباعة
+					</button>
+				</div>
+				<div class="max-h-52 overflow-y-auto text-base space-y-2" id="reportOffice">
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-6 rounded-xl">
+				<div class="flex justify-between items-start mb-4">
+					<h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">
+						<em class="fa-solid fa-check-circle text-emerald-500 ml-2">
+						</em> المستلم في المحل
+					</h3>
+					<button class="text-sm bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-lg font-bold" onclick="printReport('received')">
+						<em class="fa-solid fa-print ml-1">
+						</em> طباعة
+					</button>
+				</div>
+				<div class="max-h-52 overflow-y-auto text-base space-y-2" id="reportReceived">
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-6 rounded-xl">
+				<div class="flex justify-between items-start mb-4">
+					<h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">
+						<em class="fa-solid fa-users text-sky-500 ml-2">
+						</em> كشف العملاء
+					</h3>
+					<button class="text-sm bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 px-3 py-1.5 rounded-lg font-bold" onclick="printReport('customers')">
+						<em class="fa-solid fa-print ml-1">
+						</em> طباعة
+					</button>
+				</div>
+				<div class="max-h-52 overflow-y-auto text-base space-y-2" id="reportCustomers">
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-6 rounded-xl">
+				<div class="flex justify-between items-start mb-4">
+					<h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">
+						<em class="fa-solid fa-clock text-rose-500 ml-2">
+						</em> المتأخرات
+					</h3>
+					<button class="text-sm bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 px-3 py-1.5 rounded-lg font-bold" onclick="printReport('delayed')">
+						<em class="fa-solid fa-print ml-1">
+						</em> طباعة
+					</button>
+				</div>
+				<div class="max-h-52 overflow-y-auto text-base space-y-2" id="reportDelayed">
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-6 rounded-xl">
+				<div class="flex justify-between items-start mb-4">
+					<h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">
+						<em class="fa-solid fa-money-bill-wave text-green-500 ml-2">
+						</em> تقرير مالي
+					</h3>
+					<button class="text-sm bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg font-bold" onclick="printReport('financial')">
+						<em class="fa-solid fa-print ml-1">
+						</em> طباعة
+					</button>
+				</div>
+				<div class="max-h-52 overflow-y-auto text-base space-y-2" id="reportFinancial">
+				</div>
+			</div>
+			                    
+			<div class="odoo-card p-6 rounded-xl">
+				<div class="flex justify-between items-start mb-4">
+					<h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">
+						<em class="fa-solid fa-calendar-day text-purple-500 ml-2">
+						</em> تقرير يومي
+					</h3>
+					<button class="text-sm bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1.5 rounded-lg font-bold" onclick="printReport('daily')">
+						<em class="fa-solid fa-print ml-1">
+						</em> طباعة
+					</button>
+				</div>
+				<div class="max-h-52 overflow-y-auto text-base space-y-2" id="reportDaily">
+				</div>
+			</div>
+			                
+		</div>
+		            
+	</div><main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8 print-container">        </main>         
+	<!--  المودالات  -->        
+	<div onclick="if(event.target === this) closePasswordModal()" class="modal-overlay" id="passwordModal">
+		            
+		<div class="modal-content">
+			<div class="flex justify-between items-center mb-5">
+				<h3 class="text-xl font-bold text-slate-800 dark:text-white">
+					تغيير كلمة المرور
+				</h3>
+				<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick="closePasswordModal()">
+					<em class="fa-solid fa-xmark text-2xl">
+					</em>
+				</button>
+			</div>
+			                
+			<form class="space-y-5" onsubmit="saveNewPassword(event)" id="passwordForm">
+				                    
+				<div>
+					<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">كلمة المرور الحالية</label><input required="" class="w-full odoo-input" id="currentPassword" type="password" />
+				</div>
+				                    
+				<div>
+					<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">كلمة المرور الجديدة</label><input required="" class="w-full odoo-input" id="newPassword" type="password" />
+				</div>
+				                    
+				<div>
+					<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تأكيد كلمة المرور الجديدة</label><input required="" class="w-full odoo-input" id="confirmNewPassword" type="password" />
+				</div>
+				                    
+				<button class="w-full odoo-btn-primary py-3 text-lg" type="submit">
+					حفظ كلمة المرور الجديدة
+				</button>
+				                
+			</form>
+			            
+		</div>
+		        
+	</div>
+	         
+	<div onclick="if(event.target === this) closeEditModal()" class="modal-overlay" id="editModal">
+		            
+		<div class="modal-content">
+			<div class="flex justify-between items-center mb-5">
+				<h3 class="text-xl font-bold text-slate-800 dark:text-white">
+					تعديل الطلب
+				</h3>
+				<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick="closeEditModal()">
+					<em class="fa-solid fa-xmark text-2xl">
+					</em>
+				</button>
+			</div>
+			                
+			<form class="space-y-5" id="editForm">
+				                    <input id="editId" type="hidden" />                    
+				<div>
+					<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">تاريخ الإرسال</label><input class="w-full odoo-input" id="editDate" type="date" />
+				</div>
+				                    
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الاسم</label><input class="w-full odoo-input" id="editName" type="text" />
+					</div>
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الهاتف</label><input class="w-full odoo-input" id="editPhone" type="text" />
+					</div>
+				</div>
+				                    
+				<div>
+					<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input class="w-full odoo-input" id="editSoNumber" type="text" />
+				</div>
+				                    
+				<div class="grid grid-cols-3 gap-4">
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input oninput="updateEditRemaining()" class="w-full odoo-input" id="editTotal" type="number" />
+					</div>
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input oninput="updateEditRemaining()" class="w-full odoo-input" id="editPaid" type="number" />
+					</div>
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input readonly="" class="w-full bg-slate-100 dark:bg-slate-600 rounded-lg py-2 px-3 text-base font-bold" id="editRemaining" type="number" />
+					</div>
+				</div>
+				                    
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">النوع</label><select class="w-full odoo-input" id="editType"><option value="نظارة وعدسات جديدة">نظارة وعدسات</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select>
+					</div>
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select class="w-full odoo-input" id="editStatus"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select>
+					</div>
+				</div>
+				                    
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التسليم</label><select class="w-full odoo-input" id="editDelivery"><option value="لم يتم">لم يتم</option><option value="تم التسليم">تم التسليم</option></select>
+					</div>
+					<div>
+						<label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><input class="w-full odoo-input" id="editNotes" type="text" />
+					</div>
+				</div>
+				                    
+				<button class="w-full odoo-btn-primary py-3 text-lg" type="submit">
+					<em class="fa-solid fa-floppy-disk ml-2">
+					</em> حفظ التعديلات
+				</button>
+				                
+			</form>
+			            
+		</div>
+		        
+	</div>
+	         
+	<div onclick="if(event.target === this) closeBranchesModal()" class="modal-overlay" id="branchesModal">
+		            
+		<div class="modal-content">
+			<div class="flex justify-between items-center mb-5">
+				<h3 class="text-xl font-bold text-slate-800 dark:text-white">
+					إدارة الفروع
+				</h3>
+				<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick="closeBranchesModal()">
+					<em class="fa-solid fa-xmark text-2xl">
+					</em>
+				</button>
+			</div>
+			<div id="branchesList" class="space-y-3 mb-5 max-h-60 overflow-y-auto">
+			</div>
+			<div class="flex gap-2">
+				<input placeholder="اسم الفرع الجديد" class="flex-1 odoo-input" id="newBranchName" type="text" />
+				<button class="odoo-btn-primary" onclick="addBranch()">
+					إضافة
+				</button>
+			</div>
+		</div>
+		        
+	</div>
+	         
+	<!--  نافذة تخصيص الأعمدة (مُصححة)  -->        
+	<div onclick="if(event.target === this) closeColumnSettings()" class="modal-overlay" id="columnSettingsModal">
+		            
+		<div class="modal-content">
+			                
+			<div class="flex justify-between items-center mb-5">
+				                    
+				<h3 class="text-xl font-bold text-slate-800 dark:text-white">
+					تخصيص الأعمدة
+				</h3>
+				                    
+				<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick="closeColumnSettings()">
+					                        <em class="fa-solid fa-xmark text-2xl"></em>                    
+				</button>
+				                
+			</div>
+			                
+			<div id="columnsCheckboxes" class="space-y-3 max-h-80 overflow-y-auto">
+			</div>
+			                
+			<div id="columnCountIndicator" class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+			</div>
+			                
+			<button class="mt-5 w-full odoo-btn-primary py-3 text-lg" onclick="saveColumnSettings()">
+				حفظ الإعدادات
+			</button>
+			            
+		</div>
+		        
+	</div>
+	         
+	<!--  باقي المودالات (المستخدمين، التأكيد، التنبيه) بدون تغيير يذكر  -->        
+	<div onclick="if(event.target === this) closeUsersModal()" class="modal-overlay" id="usersModal">
+		            
+		<div style="max-width: 650px;" class="modal-content">
+			                
+			<div class="flex justify-between items-center mb-5">
+				                    
+				<h3 class="text-xl font-bold text-slate-800 dark:text-white">
+					إدارة المستخدمين
+				</h3>
+				                    
+				<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick="closeUsersModal()">
+					<em class="fa-solid fa-xmark text-2xl">
+					</em>
+				</button>
+				                
+			</div>
+			                
+			<div id="usersList" class="space-y-3 mb-5 max-h-60 overflow-y-auto">
+			</div>
+			                
+			<div class="border-t border-slate-200 dark:border-slate-600 pt-4 mt-4">
+				                    
+				<h4 class="font-bold text-slate-700 dark:text-slate-200 mb-3">
+					إضافة مستخدم جديد
+				</h4>
+				                    
+				<div class="grid grid-cols-2 gap-3 mb-3">
+					                        <input placeholder="اسم المستخدم" class="odoo-input" id="newUsername" type="text" />                        <input placeholder="كلمة المرور (6 خانات)" class="odoo-input" id="newUserPassword" type="password" />                        <input placeholder="الاسم الظاهر" class="odoo-input" id="newUserDisplayName" type="text" />                        <select class="odoo-input" id="newUserRole">
                             <option value="super_admin">مدير عام</option>
-                            <option value="branch_admin" selected>مدير فرع</option>
+                            <option selected="" value="branch_admin">مدير فرع</option>
                             <option value="user">موظف</option>
-                        </select>
-                        <select id="newUserBranch" class="odoo-input"></select>
-                    </div>
-                    <button onclick="addNewUser()" class="w-full odoo-btn-primary py-2 text-base">إضافة</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="confirmModal" class="modal-overlay">
-            <div class="modal-content text-center"><div class="text-5xl mb-4 text-rose-500"><i class="fa-solid fa-circle-question"></i></div><h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" id="confirmMessage"></h3><div class="flex justify-center gap-5 mt-6"><button onclick="confirmAction(false)" class="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500 py-2.5 px-8 rounded-lg font-bold text-lg">إلغاء</button><button onclick="confirmAction(true)" class="bg-rose-500 hover:bg-rose-600 text-white py-2.5 px-8 rounded-lg font-bold text-lg">تأكيد</button></div></div>
-        </div>
-
-        <div id="alertModal" class="modal-overlay">
-            <div class="modal-content text-center"><div class="text-5xl mb-4 text-odoo-500"><i class="fa-solid fa-circle-info"></i></div><h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" id="alertMessage"></h3><button onclick="closeAlert()" class="odoo-btn-primary py-2.5 px-10 text-lg mt-5">حسنًا</button></div>
-        </div>
-
-        <footer class="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-slate-700 py-5 text-center no-print">
-            <p class="text-base text-slate-400 dark:text-slate-300">نظام تتبع نور للبصريات &copy; 2026</p>
-            <p class="text-base text-slate-500 dark:text-slate-400 mt-1">Made with <span class="text-red-500">❤️</span> by Mohammed Hussein 2026</p>
-        </footer>
-    <script>
+                        </select>                        <select class="odoo-input" id="newUserBranch"></select>                    
+				</div>
+				                    
+				<button class="w-full odoo-btn-primary py-2 text-base" onclick="addNewUser()">
+					إضافة
+				</button>
+				                
+			</div>
+			            
+		</div>
+		        
+	</div>
+	         
+	<div class="modal-overlay" id="confirmModal">
+		            
+		<div class="modal-content text-center">
+			<div class="text-5xl mb-4 text-rose-500">
+				<em class="fa-solid fa-circle-question">
+				</em>
+			</div>
+			<h3 id="confirmMessage" class="text-xl font-bold text-slate-800 dark:text-white mb-3">
+			</h3>
+			<div class="flex justify-center gap-5 mt-6">
+				<button class="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500 py-2.5 px-8 rounded-lg font-bold text-lg" onclick="confirmAction(false)">
+					إلغاء
+				</button>
+				<button class="bg-rose-500 hover:bg-rose-600 text-white py-2.5 px-8 rounded-lg font-bold text-lg" onclick="confirmAction(true)">
+					تأكيد
+				</button>
+			</div>
+		</div>
+		        
+	</div>
+	         
+	<div class="modal-overlay" id="alertModal">
+		            
+		<div class="modal-content text-center">
+			<div class="text-5xl mb-4 text-odoo-500">
+				<em class="fa-solid fa-circle-info">
+				</em>
+			</div>
+			<h3 id="alertMessage" class="text-xl font-bold text-slate-800 dark:text-white mb-3">
+			</h3>
+			<button class="odoo-btn-primary py-2.5 px-10 text-lg mt-5" onclick="closeAlert()">
+				حسنًا
+			</button>
+		</div>
+		        
+	</div>
+	         <footer class="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-slate-700 py-5 text-center no-print">            </footer>
+	<p style="" class="text-base text-slate-400 dark:text-slate-300">
+		نظام تتبع نور للبصريات © 2026
+	</p><footer class="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-slate-700 py-5 text-center no-print">            </footer>
+	<p style="" class="text-base text-slate-500 dark:text-slate-400 mt-1">
+		Made with <span class="text-red-500">❤️</span> by Mohammed Hussein 2026
+	</p><footer class="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-slate-700 py-5 text-center no-print">        </footer>     <script>
         // ========== إعدادات Firebase ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCWOz9GlOG3aiYQLRoYgS13EjcNB0-zoBY",
@@ -345,6 +819,8 @@
         let currentBranch = 'all';
         let currentFilter = 'all';
         let currentTab = 'main';
+        let currentPage = 1;
+        const pageSize = 30;
 
         const allColumns = [
             { id: 'date', name: 'التاريخ', visible: true }, { id: 'soNumber', name: 'رقم SO', visible: true },
@@ -364,20 +840,16 @@
         function toggleDarkMode() { applyDarkMode(!document.documentElement.classList.contains('dark')); }
         function loadDarkMode() { applyDarkMode(localStorage.getItem('noor_dark_mode') === 'true'); }
 
-        // ========== دوال عامة ==========
         function getTypeBadgeClass(type) { if (type === 'نظارة وعدسات جديدة') return 'type-new-glasses'; if (type === 'عدسات فقط') return 'type-lenses-only'; return 'type-maintenance'; }
         function getDaysSince(dateStr) { if (!dateStr) return 0; const parts = dateStr.split('/'); if (parts.length !== 3) return 0; const d = new Date(parts[2], parts[1] - 1, parts[0]); const now = new Date(); now.setHours(0,0,0,0); return Math.floor((now - d) / (1000 * 60 * 60 * 24)); }
 
-        // ========== دوال Firebase للطلبات ==========
         async function saveOrderToFirestore(order) { try { await db.collection("orders").doc(order.id.toString()).set(order, { merge: true }); } catch (e) { console.error(e); } }
         async function deleteOrderFromFirestore(orderId) { try { await db.collection("orders").doc(orderId.toString()).delete(); } catch (e) { console.error(e); } }
         async function loadData() { orders = []; try { const snapshot = await db.collection("orders").orderBy("id", "desc").get(); snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() })); } catch (e) { console.error(e); } }
 
-        // ========== دوال الأعمدة (Firestore) ==========
         async function loadColumnSettings() { if (!currentUser) return; try { const doc = await db.collection('user_settings').doc(currentUser.username).get(); if (doc.exists && doc.data().columns) { const saved = doc.data().columns; saved.forEach(s => { const col = allColumns.find(c => c.id === s.id); if (col) col.visible = s.visible; }); } } catch(e) { console.error(e); } }
         async function saveColumnSettingsToFirestore() { if (!currentUser) return; const columnsData = allColumns.map(c => ({id: c.id, visible: c.visible})); try { await db.collection('user_settings').doc(currentUser.username).set({ columns: columnsData }, { merge: true }); } catch(e) { console.error(e); } }
 
-        // ========== دوال الفروع (Firestore) ==========
         async function loadBranchesFromFirestore() {
             try {
                 const doc = await db.collection('branches').doc('list').get();
@@ -393,11 +865,10 @@
                     currentBranch = branches[0] || 'رشيد';
                 }
                 populateBranchSelect();
-            } catch (e) { console.error('فشل تحميل الفروع:', e); const localBranches = localStorage.getItem('noor_branches'); if (localBranches) branches = JSON.parse(localBranches); populateBranchSelect(); }
+            } catch (e) { console.error(e); const localBranches = localStorage.getItem('noor_branches'); if (localBranches) branches = JSON.parse(localBranches); populateBranchSelect(); }
         }
-        async function saveBranchesToFirestore() { try { await db.collection('branches').doc('list').set({ names: branches }); } catch (e) { console.error('فشل حفظ الفروع:', e); } }
+        async function saveBranchesToFirestore() { try { await db.collection('branches').doc('list').set({ names: branches }); } catch (e) { console.error(e); } }
 
-        // ========== دوال المستخدمين (Firestore) ==========
         async function loadUserFromFirestore(username) {
             try {
                 const doc = await db.collection('users').doc(username).get();
@@ -407,10 +878,9 @@
                     await db.collection('users').doc(username).set(defaultUser);
                     return defaultUser;
                 }
-            } catch (e) { console.error('فشل تحميل بيانات المستخدم:', e); return null; }
+            } catch (e) { console.error(e); return null; }
         }
 
-        // ========== المصادقة ==========
         async function login(event) {
             event.preventDefault();
             const username = document.getElementById('usernameInput').value.trim().toLowerCase();
@@ -418,7 +888,7 @@
             try {
                 await auth.signInWithEmailAndPassword(username + '@noor.com', password);
                 const userData = await loadUserFromFirestore(username);
-                if (!userData) { await auth.signOut(); return showAlert('بيانات المستخدم غير موجودة. الرجاء التواصل مع المدير.'); }
+                if (!userData) { await auth.signOut(); return showAlert('بيانات المستخدم غير موجودة.'); }
                 currentUser = userData;
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
@@ -439,7 +909,6 @@
         }
         function logout() { auth.signOut(); currentUser = null; document.getElementById('mainApp').classList.add('hidden'); document.getElementById('loginScreen').classList.remove('hidden'); }
 
-        // ========== الصلاحيات ==========
         function applyRolePermissions() {
             const role = currentUser?.role;
             const isAdmin = (role === 'super_admin' || role === 'branch_admin');
@@ -453,37 +922,39 @@
             if (branchSelector) branchSelector.style.display = (role === 'branch_admin') ? 'none' : '';
         }
 
-        // ========== تغيير الفرع ==========
         function switchBranch(b) {
             if (currentUser?.role === 'branch_admin') return;
             currentBranch = b;
             localStorage.setItem('noor_current_branch', currentBranch);
             document.getElementById('currentBranchName').innerText = currentBranch === 'all' ? 'كل الفروع' : currentBranch;
+            currentPage = 1;
             renderTable();
             if (currentTab === 'reports') renderAllReports();
         }
 
-        // ========== ملء قائمة الفروع ==========
         function populateBranchSelect() {
             const select = document.getElementById('branchSelect');
             if (!select) return;
             let options = '';
             if (currentUser?.role === 'super_admin') {
-                options += `<option value="all" ${currentBranch === 'all' ? 'selected' : ''}>🌐 الكل</option>`;
+                options += `<option value="all" ${currentBranch === 'all' ? 'selected' : ''}>???? الكل</option>`;
             }
             options += branches.map(b => `<option value="${b}" ${b === currentBranch ? 'selected' : ''}>${b}</option>`).join('');
             select.innerHTML = options;
-            
-            // ملء قائمة الفروع في نموذج إضافة المستخدمين
             const userBranchSelect = document.getElementById('newUserBranch');
-            if (userBranchSelect) {
-                userBranchSelect.innerHTML = branches.map(b => `<option value="${b}">${b}</option>`).join('');
-            }
+            if (userBranchSelect) userBranchSelect.innerHTML = branches.map(b => `<option value="${b}">${b}</option>`).join('');
         }
 
-        function switchTab(tab) { currentTab = tab; document.getElementById('mainTabContent').classList.toggle('hidden', tab !== 'main'); document.getElementById('reportsTabContent').classList.toggle('hidden', tab !== 'reports'); ['tabMain','tabReports'].forEach(id => document.getElementById(id).classList.remove('text-white','border-white')); const active = document.getElementById(tab === 'main' ? 'tabMain' : 'tabReports'); active.classList.add('text-white','border-white'); if (tab === 'reports') renderAllReports(); }
+        function switchTab(tab) { 
+            currentTab = tab; 
+            document.getElementById('mainTabContent').classList.toggle('hidden', tab !== 'main'); 
+            document.getElementById('reportsTabContent').classList.toggle('hidden', tab !== 'reports'); 
+            ['tabMain','tabReports'].forEach(id => document.getElementById(id).classList.remove('text-white','border-white')); 
+            const active = document.getElementById(tab === 'main' ? 'tabMain' : 'tabReports'); 
+            active.classList.add('text-white','border-white'); 
+            if (tab === 'reports') renderAllReports(); 
+        }
 
-        // ========== النموذج ==========
         function toggleOrderForm() { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; const c = document.getElementById('formCollapsible'), i = document.getElementById('formToggleIcon'); c.classList.toggle('open'); i.classList.toggle('fa-chevron-up'); i.classList.toggle('fa-chevron-down'); }
         function openQuickAdd() { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; const c = document.getElementById('formCollapsible'), i = document.getElementById('formToggleIcon'); if (!c.classList.contains('open')) { c.classList.add('open'); i.classList.replace('fa-chevron-down','fa-chevron-up'); } document.getElementById('orderDate').value = new Date().toISOString().split('T')[0]; document.getElementById('custName').value = 'عميل كاش'; document.getElementById('custPhone').value = 'غير متوفر'; document.getElementById('orderSoNumber').value = ''; document.getElementById('totalPrice').value = ''; document.getElementById('paidAmount').value = '0'; document.getElementById('remainingAmount').value = '0'; document.getElementById('orderNotes').value = ''; document.getElementById('orderStatus').value = 'في المكتب'; document.getElementById('deliveryStatus').value = 'لم يتم'; document.getElementById('custName').focus(); }
         function calcRemaining() { let t = parseFloat(document.getElementById('totalPrice').value)||0, p = parseFloat(document.getElementById('paidAmount').value)||0; document.getElementById('remainingAmount').value = Math.max(0, t-p); }
@@ -492,10 +963,7 @@
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return;
-            
-            // جميع الحقول اختيارية الآن
             const dateValue = document.getElementById('orderDate').value;
-            // إذا لم يُدخل تاريخ، استخدم تاريخ اليوم
             let formattedDate;
             if (dateValue) {
                 const [y, m, d] = dateValue.split('-');
@@ -504,33 +972,18 @@
                 const now = new Date();
                 formattedDate = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
             }
-            
-            let total = parseFloat(document.getElementById('totalPrice').value)||0;
-            let paid = parseFloat(document.getElementById('paidAmount').value)||0;
+            let total = parseFloat(document.getElementById('totalPrice').value)||0, paid = parseFloat(document.getElementById('paidAmount').value)||0;
             let orderBranch = currentBranch;
-            if (currentUser.role === 'super_admin' && currentBranch === 'all') {
-                orderBranch = branches[0] || 'رشيد';
-            }
-            // القيم الافتراضية للحقول الفارغة
+            if (currentUser.role === 'super_admin' && currentBranch === 'all') orderBranch = branches[0] || 'رشيد';
             const custNameVal = document.getElementById('custName').value.trim() || 'بدون اسم';
             const custPhoneVal = document.getElementById('custPhone').value.trim() || 'غير متوفر';
             const soNumberVal = document.getElementById('orderSoNumber').value.trim();
             const notesVal = document.getElementById('orderNotes').value.trim();
-            
             let newOrder = { 
-                id: Date.now(), 
-                date: formattedDate, 
-                branch: orderBranch, 
-                soNumber: soNumberVal, 
-                name: custNameVal, 
-                phone: custPhoneVal, 
-                type: document.getElementById('orderType').value, 
-                status: document.getElementById('orderStatus').value, 
-                delivery: document.getElementById('deliveryStatus').value, 
-                notes: notesVal, 
-                total, 
-                paid, 
-                remaining: total - paid 
+                id: Date.now(), date: formattedDate, branch: orderBranch, soNumber: soNumberVal, 
+                name: custNameVal, phone: custPhoneVal, type: document.getElementById('orderType').value, 
+                status: document.getElementById('orderStatus').value, delivery: document.getElementById('deliveryStatus').value, 
+                notes: notesVal, total, paid, remaining: total - paid 
             };
             orders.unshift(newOrder);
             await saveOrderToFirestore(newOrder);
@@ -538,20 +991,75 @@
             document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('remainingAmount').value = 0;
             if (document.getElementById('formCollapsible').classList.contains('open')) toggleOrderForm();
+            currentPage = 1;
             renderTable();
         });
 
-        // ========== عمليات الجدول ==========
         async function toggleStatus(id) { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let o = orders.find(o=>o.id==id); if (o) { o.status = o.status==='في المكتب'?'بالمحل':'في المكتب'; await saveOrderToFirestore(o); renderTable(); } }
         async function toggleDelivery(id) { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let o = orders.find(o=>o.id==id); if (o) { o.delivery = o.delivery==='لم يتم'?'تم التسليم':'لم يتم'; await saveOrderToFirestore(o); renderTable(); } }
         async function deleteOrder(id) { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; showConfirm("هل أنت متأكد من حذف هذا الطلب؟", async function(ok) { if (ok) { orders = orders.filter(o=>o.id!==id); await deleteOrderFromFirestore(id); renderTable(); } }); }
 
-        // ========== مودال التعديل ==========
         function openEditModal(id) { if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let o = orders.find(o=>o.id===id); if (!o) return; document.getElementById('editId').value = o.id; const parts = o.date.split('/'); if (parts.length === 3) document.getElementById('editDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`; else document.getElementById('editDate').value = ''; document.getElementById('editName').value = o.name; document.getElementById('editPhone').value = o.phone; document.getElementById('editSoNumber').value = o.soNumber || ''; document.getElementById('editType').value = o.type; document.getElementById('editStatus').value = o.status; document.getElementById('editDelivery').value = o.delivery || 'لم يتم'; document.getElementById('editTotal').value = o.total; document.getElementById('editPaid').value = o.paid; document.getElementById('editRemaining').value = o.remaining; document.getElementById('editNotes').value = o.notes || ''; document.getElementById('editModal').classList.add('active'); }
         function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
-        document.getElementById('editForm').addEventListener('submit', async function(e) { e.preventDefault(); if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; let id = parseInt(document.getElementById('editId').value); let o = orders.find(o=>o.id===id); if (o) { const dateValue = document.getElementById('editDate').value; let formattedDate = o.date; if (dateValue) { const [y, m, d] = dateValue.split('-'); formattedDate = `${d}/${m}/${y}`; } o.date = formattedDate; o.name = document.getElementById('editName').value.trim() || 'بدون اسم'; o.phone = document.getElementById('editPhone').value.trim() || 'غير متوفر'; o.soNumber = document.getElementById('editSoNumber').value.trim(); o.type = document.getElementById('editType').value; o.status = document.getElementById('editStatus').value; o.delivery = document.getElementById('editDelivery').value; o.total = parseFloat(document.getElementById('editTotal').value)||0; o.paid = parseFloat(document.getElementById('editPaid').value)||0; o.remaining = Math.max(0, o.total - o.paid); o.notes = document.getElementById('editNotes').value.trim(); await saveOrderToFirestore(o); renderTable(); closeEditModal(); } });
+        document.getElementById('editForm').addEventListener('submit', async function(e) { 
+            e.preventDefault(); 
+            if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; 
+            let id = parseInt(document.getElementById('editId').value); 
+            let o = orders.find(o=>o.id===id); 
+            if (o) { 
+                const dateValue = document.getElementById('editDate').value; 
+                let formattedDate = o.date; 
+                if (dateValue) { const [y, m, d] = dateValue.split('-'); formattedDate = `${d}/${m}/${y}`; } 
+                o.date = formattedDate; 
+                o.name = document.getElementById('editName').value.trim() || 'بدون اسم'; 
+                o.phone = document.getElementById('editPhone').value.trim() || 'غير متوفر'; 
+                o.soNumber = document.getElementById('editSoNumber').value.trim(); 
+                o.type = document.getElementById('editType').value; 
+                o.status = document.getElementById('editStatus').value; 
+                o.delivery = document.getElementById('editDelivery').value; 
+                o.total = parseFloat(document.getElementById('editTotal').value)||0; 
+                o.paid = parseFloat(document.getElementById('editPaid').value)||0; 
+                o.remaining = Math.max(0, o.total - o.paid); 
+                o.notes = document.getElementById('editNotes').value.trim(); 
+                await saveOrderToFirestore(o); 
+                renderTable(); 
+                closeEditModal(); 
+            } 
+        });
 
-        // ========== إدارة الفروع (UI) ==========
+        // ========== دوال تخصيص الأعمدة (مُحسَّنة) ==========
+        function openColumnSettings() {
+            const container = document.getElementById('columnsCheckboxes');
+            container.innerHTML = allColumns.map(col => 
+                `<label class="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer">
+                    <input type="checkbox" ${col.visible ? 'checked' : ''} data-column-id="${col.id}" class="column-checkbox w-5 h-5 text-odoo-500 rounded" onchange="updateColumnCount()">
+                    <span class="text-base font-medium text-slate-700 dark:text-slate-200">${col.name}</span>
+                </label>`
+            ).join('');
+            updateColumnCount();
+            document.getElementById('columnSettingsModal').classList.add('active');
+        }
+
+        function updateColumnCount() {
+            const checked = document.querySelectorAll('.column-checkbox:checked').length;
+            const indicator = document.getElementById('columnCountIndicator');
+            if (indicator) indicator.innerText = `${checked} أعمدة مُفعّلة من أصل ${allColumns.length}`;
+        }
+
+        async function saveColumnSettings() {
+            document.querySelectorAll('.column-checkbox').forEach(cb => {
+                const col = allColumns.find(c => c.id === cb.dataset.columnId);
+                if (col) col.visible = cb.checked;
+            });
+            await saveColumnSettingsToFirestore();
+            closeColumnSettings();
+            renderTable();
+        }
+
+        function closeColumnSettings() {
+            document.getElementById('columnSettingsModal').classList.remove('active');
+        }
+
         function openBranchesModal() { if (!currentUser || currentUser.role !== 'super_admin') return; renderBranchesList(); document.getElementById('branchesModal').classList.add('active'); }
         function closeBranchesModal() { document.getElementById('branchesModal').classList.remove('active'); }
         function renderBranchesList() { document.getElementById('branchesList').innerHTML = branches.map((b, idx) => `<div class="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg"><span class="font-medium text-base dark:text-white">${b}</span><div class="flex gap-1"><button onclick="editBranch(${idx})" class="text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button><button onclick="deleteBranch(${idx})" class="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button></div></div>`).join(''); }
@@ -559,12 +1067,9 @@
         async function editBranch(index) { const newName = prompt('اسم الفرع الجديد:', branches[index]); if (newName && newName.trim() && !branches.includes(newName.trim())) { const old = branches[index]; branches[index] = newName.trim(); orders.forEach(o => { if (o.branch === old) o.branch = newName.trim(); }); if (currentBranch === old) switchBranch(newName.trim()); await saveBranchesToFirestore(); for (const o of orders) { if (o.branch === newName || o.branch === old) await saveOrderToFirestore(o); } populateBranchSelect(); renderBranchesList(); renderTable(); } else if (newName && branches.includes(newName.trim())) showAlert('الفرع موجود'); }
         async function deleteBranch(index) { if (branches.length <= 1) return showAlert('يجب وجود فرع واحد على الأقل'); const branchToDelete = branches[index]; showConfirm(`حذف فرع "${branchToDelete}" سينقل طلباته إلى "عام". متابعة؟`, async function(ok) { if (ok) { orders.forEach(o => { if (o.branch === branchToDelete) o.branch = 'عام'; }); branches.splice(index, 1); if (currentBranch === branchToDelete) switchBranch(branches[0]); await saveBranchesToFirestore(); for (const o of orders) { if (o.branch === 'عام') await saveOrderToFirestore(o); } populateBranchSelect(); renderBranchesList(); renderTable(); } }); }
 
-        // ========== إدارة المستخدمين (UI) ==========
-        function openUsersModal() {
-            if (!currentUser || currentUser.role !== 'super_admin') return;
-            renderUsersList();
-            document.getElementById('usersModal').classList.add('active');
-        }
+        // ... (باقي دوال إدارة المستخدمين كما هي) ...
+
+        function openUsersModal() { if (!currentUser || currentUser.role !== 'super_admin') return; renderUsersList(); document.getElementById('usersModal').classList.add('active'); }
         function closeUsersModal() { document.getElementById('usersModal').classList.remove('active'); }
 
         async function renderUsersList() {
@@ -576,8 +1081,7 @@
                 snapshot.forEach(doc => {
                     const user = doc.data();
                     const roleText = user.role === 'super_admin' ? 'مدير عام' : (user.role === 'branch_admin' ? 'مدير فرع' : 'موظف');
-                    html += `
-                    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
+                    html += `<div class="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
                         <div>
                             <span class="font-medium text-base dark:text-white">${user.name || doc.id}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 mr-2">(${doc.id})</span>
@@ -591,10 +1095,7 @@
                     </div>`;
                 });
                 container.innerHTML = html || '<p class="text-slate-400 text-center">لا يوجد مستخدمين</p>';
-            } catch(e) {
-                console.error(e);
-                container.innerHTML = '<p class="text-red-500 text-center">فشل تحميل المستخدمين</p>';
-            }
+            } catch(e) { console.error(e); container.innerHTML = '<p class="text-red-500 text-center">فشل تحميل المستخدمين</p>'; }
         }
 
         async function addNewUser() {
@@ -603,70 +1104,38 @@
             const displayName = document.getElementById('newUserDisplayName').value.trim();
             const role = document.getElementById('newUserRole').value;
             const branch = document.getElementById('newUserBranch').value;
-
             if (!username || !password || !displayName) return showAlert('يرجى ملء جميع الحقول');
             if (password.length < 6) return showAlert('كلمة المرور يجب أن تكون 6 خانات على الأقل');
-
             try {
-                // إنشاء المستخدم في Firebase Auth
                 await auth.createUserWithEmailAndPassword(username + '@noor.com', password);
-                // حفظ البيانات في Firestore
-                await db.collection('users').doc(username).set({
-                    name: displayName,
-                    role: role,
-                    branch: role === 'super_admin' ? 'all' : branch
-                });
-                // تفريغ الحقول
-                document.getElementById('newUsername').value = '';
-                document.getElementById('newUserPassword').value = '';
-                document.getElementById('newUserDisplayName').value = '';
+                await db.collection('users').doc(username).set({ name: displayName, role: role, branch: role === 'super_admin' ? 'all' : branch });
+                document.getElementById('newUsername').value = ''; document.getElementById('newUserPassword').value = ''; document.getElementById('newUserDisplayName').value = '';
                 renderUsersList();
                 showAlert('تم إضافة المستخدم بنجاح');
-            } catch(e) {
-                console.error(e);
-                if (e.code === 'auth/email-already-in-use') {
-                    showAlert('اسم المستخدم موجود بالفعل');
-                } else {
-                    showAlert('فشل إضافة المستخدم: ' + e.message);
-                }
-            }
+            } catch(e) { console.error(e); showAlert(e.code === 'auth/email-already-in-use' ? 'اسم المستخدم موجود بالفعل' : 'فشل إضافة المستخدم'); }
         }
 
         async function editUser(username) {
             const doc = await db.collection('users').doc(username).get();
             if (!doc.exists) return;
             const user = doc.data();
-            
             const newName = prompt('الاسم الجديد:', user.name);
             if (newName === null) return;
-            
             const roleOptions = ['super_admin', 'branch_admin', 'user'];
-            const roleText = ['مدير عام', 'مدير فرع', 'موظف'];
             const currentRoleIndex = roleOptions.indexOf(user.role);
-            const newRoleIndex = prompt(`الدور الجديد:\n0 - مدير عام\n1 - مدير فرع\n2 - موظف`, currentRoleIndex);
+            const newRoleIndex = prompt('الدور الجديد:\n0 - مدير عام\n1 - مدير فرع\n2 - موظف', currentRoleIndex);
             if (newRoleIndex === null) return;
             const newRole = roleOptions[parseInt(newRoleIndex)] || user.role;
-            
             let newBranch = user.branch;
             if (newRole === 'branch_admin' || newRole === 'user') {
                 newBranch = prompt('الفرع:', user.branch);
                 if (newBranch === null) return;
-            } else {
-                newBranch = 'all';
-            }
-
+            } else { newBranch = 'all'; }
             try {
-                await db.collection('users').doc(username).update({
-                    name: newName,
-                    role: newRole,
-                    branch: newBranch
-                });
+                await db.collection('users').doc(username).update({ name: newName, role: newRole, branch: newBranch });
                 renderUsersList();
                 showAlert('تم تحديث المستخدم بنجاح');
-            } catch(e) {
-                console.error(e);
-                showAlert('فشل تحديث المستخدم');
-            }
+            } catch(e) { console.error(e); showAlert('فشل تحديث المستخدم'); }
         }
 
         async function deleteUser(username) {
@@ -676,27 +1145,52 @@
                     try {
                         await db.collection('users').doc(username).delete();
                         renderUsersList();
-                        showAlert('تم حذف المستخدم من قاعدة البيانات. يرجى حذفه يدوياً من Firebase Auth إذا لزم الأمر.');
-                    } catch(e) {
-                        console.error(e);
-                        showAlert('فشل حذف المستخدم');
-                    }
+                        showAlert('تم حذف المستخدم من قاعدة البيانات.');
+                    } catch(e) { console.error(e); showAlert('فشل حذف المستخدم'); }
                 }
             });
         }
 
-        // ========== تخصيص الأعمدة ==========
-        function openColumnSettings() { document.getElementById('columnsCheckboxes').innerHTML = allColumns.map(col => `<label class="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer"><input type="checkbox" ${col.visible?'checked':''} data-column-id="${col.id}" class="column-checkbox w-5 h-5 text-odoo-500 rounded"><span class="text-base font-medium text-slate-700 dark:text-slate-200">${col.name}</span></label>`).join(''); document.getElementById('columnSettingsModal').classList.add('active'); }
-        function closeColumnSettings() { document.getElementById('columnSettingsModal').classList.remove('active'); }
-        async function saveColumnSettings() { document.querySelectorAll('.column-checkbox').forEach(cb => { const col = allColumns.find(c => c.id === cb.dataset.columnId); if (col) col.visible = cb.checked; }); await saveColumnSettingsToFirestore(); closeColumnSettings(); renderTable(); }
+        // ========== دوال التصفّح ==========
+        function resetPagination() { currentPage = 1; }
+        function goToPage(page) {
+            const totalPages = Math.ceil(getFilteredOrders().length / pageSize);
+            currentPage = Math.max(1, Math.min(page, totalPages));
+            renderTable();
+        }
 
-        // ========== الفلاتر والبحث ==========
-        function filterTable(type) { currentFilter = type; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('bg-white','dark:bg-slate-500','text-odoo-700','dark:text-white','shadow-sm'); b.classList.add('text-slate-600','dark:text-slate-300'); }); const active = document.getElementById({ office:'btnFilterOffice', shop:'btnFilterShop', debt:'btnFilterDebt', ready:'btnFilterReady', all:'btnFilterAll' }[type] || 'btnFilterAll'); if (active) { active.classList.add('bg-white','dark:bg-slate-500','text-odoo-700','dark:text-white','shadow-sm'); active.classList.remove('text-slate-600','dark:text-slate-300'); } renderTable(); }
-        function searchOrders() { renderTable(); }
+        function getFilteredOrders() {
+            let branchOrders;
+            if (currentUser?.role === 'super_admin') {
+                if (currentBranch === 'all') branchOrders = orders;
+                else branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            } else if (currentUser?.role === 'branch_admin') {
+                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentUser.branch);
+            } else {
+                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            }
+            const search = document.getElementById('searchBar').value.toLowerCase();
+            return branchOrders.filter(o => {
+                if (currentFilter === 'office' && o.status !== 'في المكتب') return false;
+                if (currentFilter === 'shop' && o.status !== 'بالمحل') return false;
+                if (currentFilter === 'ready' && (o.status !== 'بالمحل' || o.delivery === 'تم التسليم')) return false;
+                if (currentFilter === 'debt' && o.remaining <= 0) return false;
+                return [o.name, o.phone, o.soNumber||'', o.notes||''].join(' ').toLowerCase().includes(search);
+            });
+        }
+
+        function filterTable(type) { 
+            currentFilter = type; 
+            document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('bg-white','dark:bg-slate-500','text-odoo-700','dark:text-white','shadow-sm'); b.classList.add('text-slate-600','dark:text-slate-300'); }); 
+            const active = document.getElementById({ office:'btnFilterOffice', shop:'btnFilterShop', debt:'btnFilterDebt', ready:'btnFilterReady', all:'btnFilterAll' }[type] || 'btnFilterAll'); 
+            if (active) { active.classList.add('bg-white','dark:bg-slate-500','text-odoo-700','dark:text-white','shadow-sm'); active.classList.remove('text-slate-600','dark:text-slate-300'); } 
+            resetPagination(); 
+            renderTable(); 
+        }
+        function searchOrders() { resetPagination(); renderTable(); }
 
         function sendWhatsApp(phone, name) { if (!phone || phone === 'غير متوفر') { showAlert('رقم الهاتف غير متوفر'); return; } let clean = phone.replace(/[^\d]/g, ''); if (!clean.startsWith('2')) clean = '2' + clean; window.open(`https://wa.me/${clean}?text=${encodeURIComponent(`مرحباً ${name}،\nنود إعلامك بحالة طلبك في نور للبصريات.`)}`, '_blank'); }
 
-        // ========== عرض الجدول ==========
         function renderTable() {
             const visibleCols = allColumns.filter(c => c.visible);
             const isAdmin = (currentUser?.role === 'super_admin' || currentUser?.role === 'branch_admin');
@@ -709,32 +1203,19 @@
             theadRow.innerHTML = headerHtml;
 
             const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
-            const search = document.getElementById('searchBar').value.toLowerCase();
-            
-            let branchOrders;
-            if (currentUser?.role === 'super_admin') {
-                if (currentBranch === 'all') branchOrders = orders;
-                else branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
-            } else if (currentUser?.role === 'branch_admin') {
-                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentUser.branch);
-            } else {
-                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
-            }
-            
-            let totalCount = branchOrders.length, officeCount = 0, shopCount = 0, debtSum = 0;
-            branchOrders.forEach(o => { if (o.status === 'في المكتب') officeCount++; else if (o.status === 'بالمحل') shopCount++; if (o.remaining > 0) debtSum += o.remaining; });
+            const filtered = getFilteredOrders();
+            const totalCount = filtered.length;
+            const totalPages = Math.ceil(totalCount / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            const start = (currentPage - 1) * pageSize;
+            const displayOrders = filtered.slice(start, start + pageSize);
 
-            let filtered = branchOrders.filter(o => {
-                if (currentFilter === 'office' && o.status !== 'في المكتب') return false;
-                if (currentFilter === 'shop' && o.status !== 'بالمحل') return false;
-                if (currentFilter === 'ready' && (o.status !== 'بالمحل' || o.delivery === 'تم التسليم')) return false;
-                if (currentFilter === 'debt' && o.remaining <= 0) return false;
-                return [o.name, o.phone, o.soNumber||'', o.notes||''].join(' ').toLowerCase().includes(search);
-            });
+            let officeCount = 0, shopCount = 0, debtSum = 0;
+            filtered.forEach(o => { if (o.status === 'في المكتب') officeCount++; else if (o.status === 'بالمحل') shopCount++; if (o.remaining > 0) debtSum += o.remaining; });
 
-            document.getElementById('noDataView').classList.toggle('hidden', filtered.length > 0);
+            document.getElementById('noDataView').classList.toggle('hidden', totalCount > 0);
 
-            filtered.forEach(o => {
+            displayOrders.forEach(o => {
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-slate-700 dark:text-slate-200 text-base";
                 const days = getDaysSince(o.date);
@@ -784,8 +1265,21 @@
             document.getElementById('statMiami').innerText = officeCount;
             document.getElementById('statShop').innerText = shopCount;
             document.getElementById('statDebt').innerText = debtSum.toLocaleString('ar-EG');
-            updateSmartAlerts(branchOrders);
+            updateSmartAlerts(filtered);
             if (currentTab === 'reports') renderAllReports();
+
+            const paginationDiv = document.getElementById('paginationControls');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const pageInfo = document.getElementById('pageInfo');
+            if (totalPages > 1) {
+                paginationDiv.classList.remove('hidden');
+                prevBtn.disabled = currentPage <= 1;
+                nextBtn.disabled = currentPage >= totalPages;
+                pageInfo.innerText = `صفحة ${currentPage} من ${totalPages}`;
+            } else {
+                paginationDiv.classList.add('hidden');
+            }
         }
 
         function updateSmartAlerts(branchOrders) {
@@ -867,6 +1361,7 @@
                                 let ids = new Set(orders.map(o=>o.id));
                                 data.forEach(d => { d.branch = currentBranch; if(!ids.has(d.id)) { orders.push(d); saveOrderToFirestore(d); } });
                             }
+                            currentPage = 1;
                             renderTable(); showAlert("تم الاستيراد");
                         });
                     } else showAlert("ملف غير صالح");
@@ -877,7 +1372,6 @@
         }
         function triggerCleanPrint() { window.print(); }
 
-        // ========== تغيير كلمة المرور ==========
         function changePassword() { document.getElementById('passwordModal').classList.add('active'); document.getElementById('currentPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
         function closePasswordModal() { document.getElementById('passwordModal').classList.remove('active'); }
         async function saveNewPassword(event) {
@@ -897,7 +1391,6 @@
             } catch (e) { showAlert('كلمة المرور الحالية غير صحيحة'); }
         }
 
-        // ========== التأكيد والتنبيه ==========
         let confirmCallback = null;
         function showConfirm(m,cb) { document.getElementById('confirmMessage').innerText=m; document.getElementById('confirmModal').classList.add('active'); confirmCallback=cb; }
         function confirmAction(r) { document.getElementById('confirmModal').classList.remove('active'); if(confirmCallback)confirmCallback(r); confirmCallback=null; }
@@ -905,6 +1398,5 @@
         function closeAlert() { document.getElementById('alertModal').classList.remove('active'); }
 
         window.onload = function() { loadDarkMode(); document.getElementById('loginScreen').classList.remove('hidden'); document.getElementById('mainApp').classList.add('hidden'); document.getElementById('orderDate').value = new Date().toISOString().split('T')[0]; };
-    </script>
-</body>
-</html>
+    </script> 
+</div>
