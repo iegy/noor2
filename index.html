@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="">
 <head>
@@ -491,7 +490,7 @@
             if (!select) return;
             let options = '';
             if (currentUser?.role === 'super_admin') {
-                options += `<option value="all" ${currentBranch === 'all' ? 'selected' : ''}>???? الكل</option>`;
+                options += `<option value="all" ${currentBranch === 'all' ? 'selected' : ''}>🌐 الكل</option>`;
             }
             options += branches.map(b => `<option value="${b}" ${b === currentBranch ? 'selected' : ''}>${b}</option>`).join('');
             select.innerHTML = options;
