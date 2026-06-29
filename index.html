@@ -370,7 +370,7 @@
         let currentFilter = 'all';
         let currentTab = 'main';
         let currentPage = 1;
-        let unsubscribeListener = null; // متغير لتخزين دالة إلغاء الاشتراك من المستمع
+        let unsubscribeListener = null;
         const pageSize = 30;
 
         const allColumns = [
@@ -396,34 +396,48 @@
 
         // ========== دوال Firebase المحسنة ==========
         async function saveOrderToFirestore(order) { 
-    if (!order.id) {
-        console.error("معرف الطلب مفقود");
-        return;
-    }
-    try {
-        const orderToSave = { ...order };
-        delete orderToSave.id;
-        delete orderToSave.createdAt;
-        
-        await db.collection("orders").doc(order.id).set(orderToSave, { merge: true });
-        console.log("✅ تم حفظ التغييرات بنجاح للطلب:", order.id);
-    } catch (e) { 
-        console.error("❌ فشل في حفظ التغييرات:", e);
-        showAlert("تعذر حفظ التغييرات. تحقق من اتصال الإنترنت.");
-    } 
-}
+            if (!order.id) {
+                console.error("معرف الطلب مفقود");
+                return;
+            }
+            try {
+                // إنشاء نسخة نظيفة من البيانات بدون createdAt
+                const cleanData = {
+                    date: order.date || '',
+                    branch: order.branch || '',
+                    soNumber: order.soNumber || '',
+                    name: order.name || '',
+                    phone: order.phone || '',
+                    type: order.type || '',
+                    status: order.status || '',
+                    delivery: order.delivery || 'لم يتم',
+                    notes: order.notes || '',
+                    total: Number(order.total) || 0,
+                    paid: Number(order.paid) || 0,
+                    remaining: Number(order.remaining) || 0
+                };
+                
+                await db.collection("orders").doc(order.id).set(cleanData, { merge: true });
+                console.log("✅ تم حفظ التغييرات بنجاح:", order.id);
+            } catch (e) { 
+                console.error("❌ فشل حفظ التغييرات - تفاصيل:", e);
+                console.error("رمز الخطأ:", e.code);
+                console.error("رسالة الخطأ:", e.message);
+                showAlert("تعذر حفظ التغييرات. الخطأ: " + (e.message || "غير معروف"));
+            } 
+        }
 
         async function deleteOrderFromFirestore(orderId) { 
             try { 
                 await db.collection("orders").doc(orderId).delete(); 
+                console.log("✅ تم حذف الطلب:", orderId);
             } catch (e) { 
-                console.error("فشل في حذف الطلب:", e); 
-                showAlert("تعذر حذف الطلب.");
+                console.error("❌ فشل في حذف الطلب:", e); 
+                showAlert("تعذر حذف الطلب. الخطأ: " + (e.message || "غير معروف"));
             } 
         }
 
         function loadData() {
-            // إلغاء أي مستمع سابق لتجنب التكرار
             if (unsubscribeListener) {
                 unsubscribeListener();
                 console.log("تم إلغاء الاشتراك السابق من المستمع");
@@ -431,25 +445,22 @@
 
             console.log("بدء الاستماع للتغييرات في Firebase...");
             
-            // مستمع حي (onSnapshot) لجميع الطلبات مرتبة تنازلياً حسب وقت الإنشاء
             unsubscribeListener = db.collection("orders")
                 .orderBy("createdAt", "desc")
                 .onSnapshot((snapshot) => {
                     const newOrders = [];
                     snapshot.forEach((doc) => {
-                        // دمج معرف المستند مع جميع بياناته
                         newOrders.push({ id: doc.id, ...doc.data() });
                     });
                     
-                    // تحديث المصفوفة العمومية بالبيانات الجديدة
                     orders = newOrders;
-                    
-                    // إعادة عرض الجدول ليعكس التغييرات فوراً
                     renderTable();
                     console.log("✅ تم تحديث البيانات من السحابة:", orders.length, "طلب");
                 }, (error) => {
                     console.error("❌ خطأ في جلب البيانات الحية:", error);
-                    showAlert("تعذر الاتصال بقاعدة البيانات. تحقق من اتصالك بالإنترنت.");
+                    console.error("رمز الخطأ:", error.code);
+                    console.error("رسالة الخطأ:", error.message);
+                    showAlert("تعذر الاتصال بقاعدة البيانات. تحقق من اتصالك بالإنترنت وقواعد Firebase.");
                 });
         }
 
@@ -511,6 +522,7 @@
         async function saveBranchesToFirestore() { 
             try { 
                 await db.collection('branches').doc('list').set({ names: branches }); 
+                console.log("✅ تم حفظ الفروع بنجاح");
             } catch (e) { 
                 console.error("خطأ في حفظ الفروع:", e); 
             } 
@@ -553,10 +565,19 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 document.getElementById('loggedUserInfo').innerText = currentUser.name;
-                if (currentUser.role === 'super_admin') currentBranch = 'all';
-                else if (currentUser.role === 'branch_admin') currentBranch = currentUser.branch;
-                else currentBranch = branches[0] || 'رشيد';
+                
+                // تحميل الفروع أولاً ثم تحديد الفرع الحالي
                 await loadBranchesFromFirestore();
+                
+                if (currentUser.role === 'super_admin') {
+                    const savedBranch = localStorage.getItem('noor_current_branch');
+                    currentBranch = (savedBranch === 'all' || branches.includes(savedBranch)) ? savedBranch : 'all';
+                } else if (currentUser.role === 'branch_admin') {
+                    currentBranch = currentUser.branch;
+                } else {
+                    currentBranch = branches[0] || 'رشيد';
+                }
+                
                 await loadColumnSettings();
                 applyRolePermissions();
                 document.getElementById('currentBranchName').innerText = currentBranch === 'all' ? 'كل الفروع' : currentBranch;
@@ -566,6 +587,7 @@
                 loadData();
                 
                 switchTab('main');
+                console.log("✅ تم تسجيل الدخول بنجاح، الفرع الحالي:", currentBranch);
             } catch (e) { 
                 console.error("خطأ في تسجيل الدخول:", e); 
                 showAlert('اسم المستخدم أو كلمة المرور غير صحيحة'); 
@@ -574,7 +596,6 @@
         }
 
         function logout() { 
-            // إلغاء الاشتراك من المستمع عند تسجيل الخروج
             if (unsubscribeListener) {
                 unsubscribeListener();
                 unsubscribeListener = null;
@@ -702,7 +723,6 @@
             const soNumberVal = document.getElementById('orderSoNumber').value.trim();
             const notesVal = document.getElementById('orderNotes').value.trim();
             
-            // إنشاء طلب جديد بمعرف فريد من Firestore
             let newOrder = { 
                 date: formattedDate,
                 branch: orderBranch,
@@ -716,20 +736,17 @@
                 total,
                 paid,
                 remaining: total - paid,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp() // طابع زمني من الخادم للترتيب
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                // استخدام add() لإنشاء مستند بمعرف فريد تلقائياً
                 const docRef = await db.collection("orders").add(newOrder);
                 console.log("✅ تمت إضافة الطلب بنجاح بمعرف:", docRef.id);
                 
-                // لا نضيف الطلب محلياً، المستمع onSnapshot سيتولى ذلك
                 this.reset();
                 document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('remainingAmount').value = 0;
                 if (document.getElementById('formCollapsible').classList.contains('open')) toggleOrderForm();
-                // renderTable() سيتم استدعاؤها تلقائياً بواسطة onSnapshot
             } catch (e) {
                 console.error("❌ فشل في إضافة الطلب:", e);
                 showAlert("حدث خطأ أثناء حفظ الطلب. يرجى المحاولة مرة أخرى.");
@@ -742,7 +759,6 @@
             if (o) { 
                 o.status = o.status === 'في المكتب' ? 'بالمحل' : 'في المكتب'; 
                 await saveOrderToFirestore(o); 
-                // onSnapshot سيتولى إعادة العرض
             } 
         }
 
@@ -752,7 +768,6 @@
             if (o) { 
                 o.delivery = o.delivery === 'لم يتم' ? 'تم التسليم' : 'لم يتم'; 
                 await saveOrderToFirestore(o); 
-                // onSnapshot سيتولى إعادة العرض
             } 
         }
 
@@ -761,7 +776,6 @@
             showConfirm("هل أنت متأكد من حذف هذا الطلب؟", async function(ok) { 
                 if (ok) { 
                     await deleteOrderFromFirestore(id);
-                    // onSnapshot سيتولى إعادة العرض
                 } 
             }); 
         }
@@ -818,7 +832,6 @@
                 o.notes = document.getElementById('editNotes').value.trim(); 
                 await saveOrderToFirestore(o); 
                 closeEditModal();
-                // onSnapshot سيتولى إعادة العرض
             } 
         });
 
@@ -893,7 +906,6 @@
             if (newName && newName.trim() && !branches.includes(newName.trim())) { 
                 const old = branches[index]; 
                 branches[index] = newName.trim(); 
-                // تحديث الطلبات المرتبطة بهذا الفرع
                 for (const o of orders) {
                     if (o.branch === old) {
                         o.branch = newName.trim();
@@ -914,7 +926,6 @@
             const branchToDelete = branches[index]; 
             showConfirm(`حذف فرع "${branchToDelete}" سينقل طلباته إلى "عام". متابعة؟`, async function(ok) { 
                 if (ok) { 
-                    // تحديث الطلبات المرتبطة بهذا الفرع
                     for (const o of orders) {
                         if (o.branch === branchToDelete) {
                             o.branch = 'عام';
@@ -1143,7 +1154,7 @@
             filtered.forEach(o => { 
                 if (o.status === 'في المكتب') officeCount++; 
                 else if (o.status === 'بالمحل') shopCount++; 
-                if (o.remaining > 0) debtSum += o.remaining; 
+                if (o.remaining > 0) debtSum += Number(o.remaining); 
             });
 
             document.getElementById('noDataView').classList.toggle('hidden', totalCount > 0);
@@ -1235,32 +1246,49 @@
         }
 
         function renderAllReports() {
-            const branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            let branchOrders;
+            if (currentBranch === 'all') {
+                branchOrders = orders;
+            } else {
+                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            }
+            
             const office = branchOrders.filter(o => o.status === 'في المكتب');
             document.getElementById('reportOffice').innerHTML = office.length ? office.map(o => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            
             const received = branchOrders.filter(o => o.status === 'بالمحل');
             document.getElementById('reportReceived').innerHTML = received.length ? received.map(o => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            
             const customers = [...new Set(branchOrders.map(o => o.phone))].map(phone => { 
                 const cust = branchOrders.find(o => o.phone === phone); 
-                return { name: cust.name, phone, count: branchOrders.filter(o => o.phone === phone).length }; 
+                return { name: cust ? cust.name : '', phone, count: branchOrders.filter(o => o.phone === phone).length }; 
             });
             document.getElementById('reportCustomers').innerHTML = customers.length ? customers.map(c => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${c.name} (${c.count})</span><span>${c.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            
             const delayed = branchOrders.filter(o => o.status === 'في المكتب' && getDaysSince(o.date) >= 7).sort((a,b) => getDaysSince(b.date) - getDaysSince(a.date));
             document.getElementById('reportDelayed').innerHTML = delayed.length ? delayed.map(o => { 
                 const d = getDaysSince(o.date); 
                 return `<div class="flex justify-between border-b dark:border-slate-600 pb-2 ${d>=30?'text-red-600':d>=14?'text-red-500':'text-amber-600'}"><span>${o.name} (${d} يوم)</span><span>${o.phone}</span></div>`; 
             }).join('') : '<p class="text-slate-400">لا يوجد</p>';
-            const totalAll = branchOrders.reduce((s,o) => s + o.total, 0);
-            const totalPaid = branchOrders.reduce((s,o) => s + o.paid, 0);
-            const totalRemaining = branchOrders.reduce((s,o) => s + o.remaining, 0);
+            
+            const totalAll = branchOrders.reduce((s,o) => s + (Number(o.total) || 0), 0);
+            const totalPaid = branchOrders.reduce((s,o) => s + (Number(o.paid) || 0), 0);
+            const totalRemaining = branchOrders.reduce((s,o) => s + (Number(o.remaining) || 0), 0);
             document.getElementById('reportFinancial').innerHTML = `<div class="flex justify-between"><span>الإجمالي الكلي</span><span class="font-bold">${totalAll} ج.م</span></div><div class="flex justify-between"><span>المدفوع</span><span class="text-emerald-600">${totalPaid} ج.م</span></div><div class="flex justify-between"><span>المتبقي</span><span class="text-rose-600">${totalRemaining} ج.م</span></div>`;
+            
             const today = new Date().toLocaleDateString('ar-EG');
             const daily = branchOrders.filter(o => o.date === today);
             document.getElementById('reportDaily').innerHTML = daily.length ? daily.map(o => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.total} ج.م</span></div>`).join('') : '<p class="text-slate-400">لا يوجد طلبات اليوم</p>';
         }
 
         function printReport(type) {
-            const branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            let branchOrders;
+            if (currentBranch === 'all') {
+                branchOrders = orders;
+            } else {
+                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            }
+            
             let title = '', content = '';
             const style = `<style>body{font-family:'Cairo',sans-serif;direction:rtl;text-align:right;padding:30px;color:#000} h2{text-align:center;margin-bottom:20px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #333;padding:8px;font-size:12px} th{background:#f0f0f0} .footer{margin-top:30px;text-align:center;font-size:10px}</style>`;
             if (type === 'office') { 
@@ -1277,7 +1305,7 @@
                 title = 'كشف العملاء'; 
                 const custs = [...new Set(branchOrders.map(o => o.phone))].map(phone => { 
                     const o = branchOrders.find(o => o.phone === phone); 
-                    return { name: o.name, phone, count: branchOrders.filter(o => o.phone === phone).length }; 
+                    return { name: o ? o.name : '', phone, count: branchOrders.filter(o => o.phone === phone).length }; 
                 }); 
                 content = custs.length ? `<table><tr><th>اسم العميل</th><th>رقم الهاتف</th><th>عدد الطلبات</th></tr>${custs.map(c => `<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.count}</td></tr>`).join('')}</table>` : '<p>لا يوجد عملاء</p>'; 
             }
@@ -1288,9 +1316,9 @@
             }
             else if (type === 'financial') { 
                 title = 'تقرير مالي'; 
-                const totalAll = branchOrders.reduce((s,o) => s + o.total, 0); 
-                const totalPaid = branchOrders.reduce((s,o) => s + o.paid, 0); 
-                const totalRemaining = branchOrders.reduce((s,o) => s + o.remaining, 0); 
+                const totalAll = branchOrders.reduce((s,o) => s + (Number(o.total) || 0), 0); 
+                const totalPaid = branchOrders.reduce((s,o) => s + (Number(o.paid) || 0), 0); 
+                const totalRemaining = branchOrders.reduce((s,o) => s + (Number(o.remaining) || 0), 0); 
                 content = `<p><strong>إجمالي المبيعات:</strong> ${totalAll} ج.م</p><p><strong>المدفوع:</strong> ${totalPaid} ج.م</p><p><strong>المتبقي:</strong> ${totalRemaining} ج.م</p>`; 
                 content += `<br><table><tr><th>عميل</th><th>إجمالي</th><th>مدفوع</th><th>متبقي</th></tr>${branchOrders.map(o => `<tr><td>${o.name}</td><td>${o.total}</td><td>${o.paid}</td><td>${o.remaining}</td></tr>`).join('')}</table>`; 
             }
@@ -1308,7 +1336,7 @@
         }
 
         function exportExcel() {
-            let branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            let branchOrders = currentBranch === 'all' ? orders : orders.filter(o => (o.branch || 'رشيد') === currentBranch);
             let data = branchOrders.map(o => ({ 
                 "التاريخ": o.date, "الفرع": o.branch||'', "رقم SO": o.soNumber||"", 
                 "العميل": o.name, "الهاتف": o.phone, "النوع": o.type, 
@@ -1322,7 +1350,7 @@
         }
 
         function exportJSON() {
-            let branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+            let branchOrders = currentBranch === 'all' ? orders : orders.filter(o => (o.branch || 'رشيد') === currentBranch);
             if(!branchOrders.length) { showAlert("لا بيانات"); return; }
             let blob = new Blob([JSON.stringify(branchOrders,null,2)], {type:"application/json"});
             let a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
@@ -1342,20 +1370,17 @@
                     if(Array.isArray(data)) {
                         showConfirm("استبدال بيانات الفرع الحالي أم دمجها؟", async function(replace) {
                             if(replace) {
-                                // حذف الطلبات الحالية للفرع
                                 const snapshot = await db.collection("orders").where("branch", "==", currentBranch).get();
                                 const batch = db.batch();
                                 snapshot.docs.forEach(doc => batch.delete(doc.ref));
                                 await batch.commit();
                                 
-                                // إضافة الطلبات الجديدة
                                 for (const d of data) {
                                     d.branch = currentBranch;
                                     d.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                                     await db.collection("orders").add(d);
                                 }
                             } else {
-                                // دمج الطلبات الجديدة
                                 for (const d of data) {
                                     d.branch = currentBranch;
                                     d.createdAt = firebase.firestore.FieldValue.serverTimestamp();
