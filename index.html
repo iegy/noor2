@@ -396,14 +396,22 @@
 
         // ========== دوال Firebase المحسنة ==========
         async function saveOrderToFirestore(order) { 
-            if (!order.id) return;
-            try { 
-                await db.collection("orders").doc(order.id).set(order, { merge: true }); 
-            } catch (e) { 
-                console.error("فشل في حفظ التغييرات:", e); 
-                showAlert("تعذر حفظ التغييرات.");
-            } 
-        }
+    if (!order.id) {
+        console.error("معرف الطلب مفقود");
+        return;
+    }
+    try {
+        const orderToSave = { ...order };
+        delete orderToSave.id;
+        delete orderToSave.createdAt;
+        
+        await db.collection("orders").doc(order.id).set(orderToSave, { merge: true });
+        console.log("✅ تم حفظ التغييرات بنجاح للطلب:", order.id);
+    } catch (e) { 
+        console.error("❌ فشل في حفظ التغييرات:", e);
+        showAlert("تعذر حفظ التغييرات. تحقق من اتصال الإنترنت.");
+    } 
+}
 
         async function deleteOrderFromFirestore(orderId) { 
             try { 
