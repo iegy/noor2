@@ -611,24 +611,78 @@
         }
 
         // ==================== نظام التحميل السريع ====================
-        function loadData() {
-            if (unsubscribeListener) { unsubscribeListener(); }
-            showLoadingMini();
-            const cached = localStorage.getItem('noor_orders_cache');
-            const cacheTime = localStorage.getItem('noor_orders_cache_time');
-            if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < 300000)) {
-                try { orders = JSON.parse(cached); hideLoadingMini(); loadSortPreference(); sortAndRender(); } catch(e) {}
+        // استبدل دالة loadData كاملة بالكود ده
+function loadData() {
+    if (unsubscribeListener) { unsubscribeListener(); }
+    showLoadingMini();
+    
+    const cached = localStorage.getItem('noor_orders_cache');
+    const cacheTime = localStorage.getItem('noor_orders_cache_time');
+    if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < 300000)) {
+        try { orders = JSON.parse(cached); hideLoadingMini(); loadSortPreference(); sortAndRender(); } catch(e) {}
+    }
+    
+    // جرب نجيب كل الطلبات بدون ترتيب لو dateTimestamp مش موجود
+    unsubscribeListener = db.collection("orders")
+        .orderBy("dateTimestamp", "desc")
+        .limit(50)
+        .onSnapshot((snapshot) => {
+            const newOrders = [];
+            snapshot.forEach((doc) => { 
+                const data = doc.data(); 
+                if (!data.date && data.dateTimestamp) data.date = timestampToDateString(data.dateTimestamp);
+                newOrders.push({ id: doc.id, ...data }); 
+            });
+            
+            // لو رجع 0 طلبات، جرب بدون ترتيب
+            if (newOrders.length === 0) {
+                console.log("⚠️ لا توجد طلبات بـ dateTimestamp، جاري التحميل بدون ترتيب...");
+                loadDataWithoutOrder();
+                return;
             }
-            unsubscribeListener = db.collection("orders").orderBy("dateTimestamp", "desc").limit(50).onSnapshot((snapshot) => {
-                const newOrders = [];
-                snapshot.forEach((doc) => { const data = doc.data(); if (!data.date && data.dateTimestamp) data.date = timestampToDateString(data.dateTimestamp); newOrders.push({ id: doc.id, ...data }); });
-                if (snapshot.size > 0 && snapshot.docs.length > 0) lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-                localStorage.setItem('noor_orders_cache', JSON.stringify(newOrders));
-                localStorage.setItem('noor_orders_cache_time', Date.now());
-                orders = newOrders; allOrdersLoaded = snapshot.size < 50;
-                hideLoadingMini(); loadSortPreference(); sortAndRender();
-            }, (error) => { hideLoadingMini(); if (!orders.length) loadFromCache(); });
-        }
+            
+            if (snapshot.size > 0 && snapshot.docs.length > 0) lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+            localStorage.setItem('noor_orders_cache', JSON.stringify(newOrders));
+            localStorage.setItem('noor_orders_cache_time', Date.now());
+            orders = newOrders; allOrdersLoaded = snapshot.size < 50;
+            hideLoadingMini(); loadSortPreference(); sortAndRender();
+        }, (error) => { 
+            console.error("❌ خطأ:", error);
+            // لو فشل، جرب بدون ترتيب
+            loadDataWithoutOrder();
+        });
+}
+
+function loadDataWithoutOrder() {
+    if (unsubscribeListener) { unsubscribeListener(); }
+    
+    unsubscribeListener = db.collection("orders")
+        .limit(50)
+        .onSnapshot((snapshot) => {
+            const newOrders = [];
+            snapshot.forEach((doc) => { 
+                const data = doc.data(); 
+                newOrders.push({ id: doc.id, ...data }); 
+            });
+            
+            // ترتيب محلي حسب التاريخ (الجديد أولاً)
+            newOrders.sort((a, b) => {
+                const da = parseDate(a.date);
+                const db = parseDate(b.date);
+                return db - da;
+            });
+            
+            if (snapshot.size > 0 && snapshot.docs.length > 0) lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+            localStorage.setItem('noor_orders_cache', JSON.stringify(newOrders));
+            localStorage.setItem('noor_orders_cache_time', Date.now());
+            orders = newOrders; allOrdersLoaded = snapshot.size < 50;
+            hideLoadingMini(); loadSortPreference(); sortAndRender();
+            console.log("✅ تم تحميل", orders.length, "طلب (بدون ترتيب dateTimestamp)");
+        }, (error) => { 
+            hideLoadingMini();
+            if (!orders.length) loadFromCache();
+        });
+}
 
         async function loadMoreFromFirebase() {
             if (isLoadingMore || allOrdersLoaded) return;
