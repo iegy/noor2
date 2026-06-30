@@ -79,6 +79,33 @@
         .pagination-btn:hover:not(:disabled) { background: #e2e8f0; }
         .dark .pagination-btn:hover:not(:disabled) { background: #64748b; }
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .sortable-header:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        .dark .sortable-header:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .delivered-row {
+            opacity: 0.7;
+            background: rgba(34,197,94,0.03);
+        }
+        .dark .delivered-row {
+            background: rgba(34,197,94,0.08);
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased">
@@ -169,11 +196,12 @@
 
             <div id="mainTabContent">
                 <!-- كروت الإحصائيات -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8 no-print">
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">إجمالي الحالات</p><h3 class="text-3xl font-bold text-slate-800 dark:text-white" id="statTotal">0</h3></div><div class="w-12 h-12 bg-odoo-50 text-odoo-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-folder-open text-xl"></i></div></div>
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">في المكتب</p><h3 class="text-3xl font-bold text-amber-600 dark:text-amber-400" id="statMiami">0</h3></div><div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-building text-xl"></i></div></div>
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">بالمحل</p><h3 class="text-3xl font-bold text-emerald-600 dark:text-emerald-400" id="statShop">0</h3></div><div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-circle-check text-xl"></i></div></div>
-                    <div class="odoo-card p-5 rounded-xl flex items-center justify-between"><div><p class="text-base font-medium text-slate-500 dark:text-slate-300">مديونيات</p><h3 class="text-2xl font-bold text-rose-600 dark:text-rose-400"><span id="statDebt">0</span><span class="text-base font-normal text-slate-400 dark:text-slate-300"> ج.م</span></h3></div><div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-hand-holding-dollar text-xl"></i></div></div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 no-print">
+                    <div class="odoo-card p-4 rounded-xl flex items-center justify-between"><div><p class="text-sm font-medium text-slate-500 dark:text-slate-300">إجمالي الحالات</p><h3 class="text-2xl font-bold text-slate-800 dark:text-white" id="statTotal">0</h3></div><div class="w-10 h-10 bg-odoo-50 text-odoo-500 rounded-lg flex items-center justify-center"><i class="fa-solid fa-folder-open"></i></div></div>
+                    <div class="odoo-card p-4 rounded-xl flex items-center justify-between"><div><p class="text-sm font-medium text-slate-500 dark:text-slate-300">📦 في المكتب</p><h3 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="statMiami">0</h3></div><div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center"><i class="fa-solid fa-warehouse"></i></div></div>
+                    <div class="odoo-card p-4 rounded-xl flex items-center justify-between"><div><p class="text-sm font-medium text-slate-500 dark:text-slate-300">🏪 في المحل</p><h3 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="statShop">0</h3></div><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"><i class="fa-solid fa-shop"></i></div></div>
+                    <div class="odoo-card p-4 rounded-xl flex items-center justify-between"><div><p class="text-sm font-medium text-slate-500 dark:text-slate-300">✅ تم التسليم</p><h3 class="text-2xl font-bold text-green-600 dark:text-green-400" id="statDelivered">0</h3></div><div class="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div></div>
+                    <div class="odoo-card p-4 rounded-xl flex items-center justify-between"><div><p class="text-sm font-medium text-slate-500 dark:text-slate-300">💰 مديونيات</p><h3 class="text-xl font-bold text-rose-600 dark:text-rose-400"><span id="statDebt">0</span><span class="text-sm font-normal text-slate-400 dark:text-slate-300"> ج.م</span></h3></div><div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center"><i class="fa-solid fa-hand-holding-dollar"></i></div></div>
                 </div>
 
                 <!-- نموذج الإدخال -->
@@ -192,8 +220,14 @@
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم التليفون</label><input type="tel" id="custPhone" class="w-full odoo-input text-right" placeholder="012xxxxxxx"></div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input type="text" id="orderSoNumber" class="w-full odoo-input" placeholder="مثال: SO-00125"></div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تصنيف العمل</label><select id="orderType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات جديدة</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select id="orderStatus" class="w-full odoo-input"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select></div>
-                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">تسليم العميل</label><select id="deliveryStatus" class="w-full odoo-input"><option value="لم يتم">لم يتم ❌</option><option value="تم التسليم">تم التسليم ✅</option></select></div>
+                                        <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">الموقع الحالي</label><select id="orderStatus" class="w-full odoo-input"><option value="في المكتب">📦 في المكتب</option><option value="بالمحل">🏪 في المحل (جاهز)</option></select></div>
+                                        <div>
+                                            <label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">حالة التسليم</label>
+                                            <select id="deliveryStatus" class="w-full odoo-input" onchange="handleDeliveryChange()">
+                                                <option value="لم يتم">⏳ لم يتم بعد</option>
+                                                <option value="تم التسليم">✅ تم التسليم للعميل</option>
+                                            </select>
+                                        </div>
                                         <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><textarea id="orderNotes" rows="2" class="w-full odoo-input" placeholder="ملاحظات..."></textarea></div>
                                     </div>
                                     <div class="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-xl space-y-4">
@@ -214,18 +248,25 @@
                 <div class="w-full" id="tableSection">
                     <div class="odoo-card rounded-xl p-4 mb-5 flex flex-col md:flex-row justify-between items-center gap-4 no-print flex-wrap">
                         <div class="flex flex-wrap gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                            <button onclick="filterTable('all')" id="btnFilterAll" class="filter-btn px-4 py-2 rounded-lg text-base font-bold bg-white dark:bg-slate-500 text-odoo-700 dark:text-white shadow-sm">الكل</button>
-                            <button onclick="filterTable('office')" id="btnFilterOffice" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">في المكتب</button>
-                            <button onclick="filterTable('shop')" id="btnFilterShop" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">بالمحل</button>
-                            <button onclick="filterTable('ready')" id="btnFilterReady" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30">⏳ جاهز للتسليم</button>
-                            <button onclick="filterTable('debt')" id="btnFilterDebt" class="filter-btn px-4 py-2 rounded-lg text-base font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30">باقي مالي</button>
+                            <button onclick="filterTable('all')" id="btnFilterAll" class="filter-btn px-3 py-1.5 rounded-lg text-sm font-bold bg-white dark:bg-slate-500 text-odoo-700 dark:text-white shadow-sm">الكل</button>
+                            <button onclick="filterTable('office')" id="btnFilterOffice" class="filter-btn px-3 py-1.5 rounded-lg text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30">📦 المكتب</button>
+                            <button onclick="filterTable('shop')" id="btnFilterShop" class="filter-btn px-3 py-1.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30">🏪 المحل</button>
+                            <button onclick="filterTable('delivered')" id="btnFilterDelivered" class="filter-btn px-3 py-1.5 rounded-lg text-sm font-medium text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30">✅ تم التسليم</button>
+                            <button onclick="filterTable('ready')" id="btnFilterReady" class="filter-btn px-3 py-1.5 rounded-lg text-sm font-medium text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/30">⏳ جاهز للتسليم</button>
+                            <button onclick="filterTable('debt')" id="btnFilterDebt" class="filter-btn px-3 py-1.5 rounded-lg text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30">💰 باقي مالي</button>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openColumnSettings()" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-solid fa-gear"></i></button>
-                            <button onclick="exportExcel()" class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-regular fa-file-excel"></i> إكسل</button>
-                            <button onclick="triggerCleanPrint()" class="bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                            <button onclick="exportJSON()" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1"><i class="fa-solid fa-download"></i> JSON</button>
-                            <label id="importJSONLabel" class="bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 border font-bold px-4 py-2 rounded-lg text-base flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-upload"></i> استيراد<input type="file" id="importJSONFile" accept=".json" class="hidden" onchange="importJSON(event)"></label>
+                            <button onclick="sortByColumn('date')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-calendar"></i> تاريخ</button>
+                            <button onclick="sortByColumn('total')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-money-bill"></i> مبلغ</button>
+                            <button onclick="sortByColumn('remaining')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-coins"></i> متبقي</button>
+                            <button onclick="sortByColumn('days')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-clock"></i> أيام</button>
+                            <div class="w-px h-6 bg-slate-300 dark:bg-slate-600"></div>
+                            <button onclick="openColumnSettings()" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-gear"></i></button>
+                            <button onclick="exportExcel()" class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-regular fa-file-excel"></i></button>
+                            <button onclick="triggerCleanPrint()" class="bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-file-pdf"></i></button>
+                            <button onclick="exportJSON()" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1"><i class="fa-solid fa-download"></i></button>
+                            <label id="importJSONLabel" class="bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 border font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-upload"></i><input type="file" id="importJSONFile" accept=".json" class="hidden" onchange="importJSON(event)"></label>
+                            <button onclick="importOdooSalesOrders()" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-2 shadow-lg"><i class="fa-solid fa-cloud-arrow-down"></i> Odoo</button>
                         </div>
                     </div>
                     <div class="relative mb-5 no-print">
@@ -256,17 +297,17 @@
             <!-- التقارير -->
             <div id="reportsTabContent" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-building text-amber-500 ml-2"></i> الموجود في المكتب</h3><button onclick="printReport('office')" class="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportOffice" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-check-circle text-emerald-500 ml-2"></i> المستلم في المحل</h3><button onclick="printReport('received')" class="text-sm bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportReceived" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
+                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-warehouse text-amber-500 ml-2"></i> الموجود في المكتب</h3><button onclick="printReport('office')" class="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportOffice" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
+                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-shop text-blue-500 ml-2"></i> في المحل (جاهز)</h3><button onclick="printReport('received')" class="text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportReceived" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
+                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-circle-check text-green-500 ml-2"></i> تم التسليم</h3><button onclick="printReport('delivered')" class="text-sm bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportDelivered" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
                     <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-users text-sky-500 ml-2"></i> كشف العملاء</h3><button onclick="printReport('customers')" class="text-sm bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportCustomers" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
                     <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-clock text-rose-500 ml-2"></i> المتأخرات</h3><button onclick="printReport('delayed')" class="text-sm bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportDelayed" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
                     <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-money-bill-wave text-green-500 ml-2"></i> تقرير مالي</h3><button onclick="printReport('financial')" class="text-sm bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportFinancial" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
-                    <div class="odoo-card p-6 rounded-xl"><div class="flex justify-between items-start mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg"><i class="fa-solid fa-calendar-day text-purple-500 ml-2"></i> تقرير يومي</h3><button onclick="printReport('daily')" class="text-sm bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print ml-1"></i> طباعة</button></div><div id="reportDaily" class="max-h-52 overflow-y-auto text-base space-y-2"></div></div>
                 </div>
             </div>
         </main>
 
-        <!-- جميع المودالات كاملة -->
+        <!-- المودالات -->
         <div id="passwordModal" class="modal-overlay" onclick="if(event.target === this) closePasswordModal()">
             <div class="modal-content">
                 <div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تغيير كلمة المرور</h3><button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
@@ -287,8 +328,8 @@
                     <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الاسم</label><input type="text" id="editName" class="w-full odoo-input"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الهاتف</label><input type="text" id="editPhone" class="w-full odoo-input"></div></div>
                     <div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">رقم SO</label><input type="text" id="editSoNumber" class="w-full odoo-input"></div>
                     <div class="grid grid-cols-3 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">الإجمالي</label><input type="number" id="editTotal" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">المدفوع</label><input type="number" id="editPaid" class="w-full odoo-input" oninput="updateEditRemaining()"></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">المتبقي</label><input type="number" id="editRemaining" class="w-full bg-slate-100 dark:bg-slate-600 rounded-lg py-2 px-3 text-base font-bold" readonly></div></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">النوع</label><select id="editType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التواجد</label><select id="editStatus" class="w-full odoo-input"><option value="في المكتب">في المكتب</option><option value="بالمحل">بالمحل</option></select></div></div>
-                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التسليم</label><select id="editDelivery" class="w-full odoo-input"><option value="لم يتم">لم يتم</option><option value="تم التسليم">تم التسليم</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><input type="text" id="editNotes" class="w-full odoo-input"></div></div>
+                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">النوع</label><select id="editType" class="w-full odoo-input"><option value="نظارة وعدسات جديدة">نظارة وعدسات</option><option value="عدسات فقط">عدسات فقط</option><option value="صيانة">صيانة فقط</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">الموقع</label><select id="editStatus" class="w-full odoo-input"><option value="في المكتب">📦 في المكتب</option><option value="بالمحل">🏪 في المحل</option></select></div></div>
+                    <div class="grid grid-cols-2 gap-4"><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2">التسليم</label><select id="editDelivery" class="w-full odoo-input"><option value="لم يتم">⏳ لم يتم</option><option value="تم التسليم">✅ تم التسليم</option></select></div><div><label class="block text-base font-semibold text-slate-600 dark:text-slate-300 mb-2 optional-label">ملاحظات</label><input type="text" id="editNotes" class="w-full odoo-input"></div></div>
                     <button type="submit" class="w-full odoo-btn-primary py-3 text-lg"><i class="fa-solid fa-floppy-disk ml-2"></i> حفظ التعديلات</button>
                 </form>
             </div>
@@ -300,10 +341,7 @@
 
         <div id="columnSettingsModal" class="modal-overlay" onclick="if(event.target === this) closeColumnSettings()">
             <div class="modal-content">
-                <div class="flex justify-between items-center mb-5">
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">تخصيص الأعمدة</h3>
-                    <button onclick="closeColumnSettings()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button>
-                </div>
+                <div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">تخصيص الأعمدة</h3><button onclick="closeColumnSettings()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
                 <div class="space-y-3 max-h-80 overflow-y-auto" id="columnsCheckboxes"></div>
                 <div class="text-sm text-slate-500 dark:text-slate-400 mt-2" id="columnCountIndicator"></div>
                 <button onclick="saveColumnSettings()" class="mt-5 w-full odoo-btn-primary py-3 text-lg">حفظ الإعدادات</button>
@@ -312,10 +350,7 @@
 
         <div id="usersModal" class="modal-overlay" onclick="if(event.target === this) closeUsersModal()">
             <div class="modal-content" style="max-width: 650px;">
-                <div class="flex justify-between items-center mb-5">
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">إدارة المستخدمين</h3>
-                    <button onclick="closeUsersModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button>
-                </div>
+                <div class="flex justify-between items-center mb-5"><h3 class="text-xl font-bold text-slate-800 dark:text-white">إدارة المستخدمين</h3><button onclick="closeUsersModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
                 <div class="space-y-3 mb-5 max-h-60 overflow-y-auto" id="usersList"></div>
                 <div class="border-t border-slate-200 dark:border-slate-600 pt-4 mt-4">
                     <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-3">إضافة مستخدم جديد</h4>
@@ -323,11 +358,7 @@
                         <input type="text" id="newUsername" class="odoo-input" placeholder="اسم المستخدم">
                         <input type="password" id="newUserPassword" class="odoo-input" placeholder="كلمة المرور (6 خانات)">
                         <input type="text" id="newUserDisplayName" class="odoo-input" placeholder="الاسم الظاهر">
-                        <select id="newUserRole" class="odoo-input">
-                            <option value="super_admin">مدير عام</option>
-                            <option value="branch_admin" selected>مدير فرع</option>
-                            <option value="user">موظف</option>
-                        </select>
+                        <select id="newUserRole" class="odoo-input"><option value="super_admin">مدير عام</option><option value="branch_admin" selected>مدير فرع</option><option value="user">موظف</option></select>
                         <select id="newUserBranch" class="odoo-input"></select>
                     </div>
                     <button onclick="addNewUser()" class="w-full odoo-btn-primary py-2 text-base">إضافة</button>
@@ -370,6 +401,8 @@
         let currentFilter = 'all';
         let currentTab = 'main';
         let currentPage = 1;
+        let currentSortColumn = 'createdAt';
+        let currentSortDirection = 'desc';
         let unsubscribeListener = null;
         const pageSize = 30;
 
@@ -378,7 +411,7 @@
             { id: 'name', name: 'اسم العميل', visible: true }, { id: 'phone', name: 'رقم الهاتف', visible: true },
             { id: 'type', name: 'النوع', visible: true }, { id: 'total', name: 'الإجمالي', visible: true },
             { id: 'paid', name: 'المدفوع', visible: true }, { id: 'remaining', name: 'المتبقي', visible: true },
-            { id: 'status', name: 'التواجد', visible: true }, { id: 'delivery', name: 'التسليم', visible: true },
+            { id: 'status', name: 'الحالة', visible: true }, { id: 'delivery', name: 'التسليم', visible: true },
             { id: 'notes', name: 'ملاحظات', visible: true }, { id: 'days', name: 'الأيام', visible: true }
         ];
 
@@ -394,74 +427,38 @@
         function getTypeBadgeClass(type) { if (type === 'نظارة وعدسات جديدة') return 'type-new-glasses'; if (type === 'عدسات فقط') return 'type-lenses-only'; return 'type-maintenance'; }
         function getDaysSince(dateStr) { if (!dateStr) return 0; const parts = dateStr.split('/'); if (parts.length !== 3) return 0; const d = new Date(parts[2], parts[1] - 1, parts[0]); const now = new Date(); now.setHours(0,0,0,0); return Math.floor((now - d) / (1000 * 60 * 60 * 24)); }
 
-        // ========== دوال Firebase المحسنة ==========
+        // ========== دوال Firebase ==========
         async function saveOrderToFirestore(order) { 
-            if (!order.id) {
-                console.error("معرف الطلب مفقود");
-                return;
-            }
+            if (!order.id) { console.error("معرف الطلب مفقود"); return; }
             try {
-                // إنشاء نسخة نظيفة من البيانات بدون createdAt
                 const cleanData = {
-                    date: order.date || '',
-                    branch: order.branch || '',
-                    soNumber: order.soNumber || '',
-                    name: order.name || '',
-                    phone: order.phone || '',
-                    type: order.type || '',
-                    status: order.status || '',
-                    delivery: order.delivery || 'لم يتم',
-                    notes: order.notes || '',
-                    total: Number(order.total) || 0,
-                    paid: Number(order.paid) || 0,
-                    remaining: Number(order.remaining) || 0
+                    date: order.date || '', branch: order.branch || '', soNumber: order.soNumber || '',
+                    name: order.name || '', phone: order.phone || '', type: order.type || '',
+                    status: order.status || '', delivery: order.delivery || 'لم يتم', notes: order.notes || '',
+                    total: Number(order.total) || 0, paid: Number(order.paid) || 0, remaining: Number(order.remaining) || 0
                 };
-                
                 await db.collection("orders").doc(order.id).set(cleanData, { merge: true });
-                console.log("✅ تم حفظ التغييرات بنجاح:", order.id);
+                console.log("✅ تم حفظ التغييرات:", order.id);
             } catch (e) { 
-                console.error("❌ فشل حفظ التغييرات - تفاصيل:", e);
-                console.error("رمز الخطأ:", e.code);
-                console.error("رسالة الخطأ:", e.message);
-                showAlert("تعذر حفظ التغييرات. الخطأ: " + (e.message || "غير معروف"));
+                console.error("❌ فشل حفظ التغييرات:", e);
+                showToast('تعذر حفظ التغييرات: ' + (e.message || 'خطأ غير معروف'), 'error');
             } 
         }
 
         async function deleteOrderFromFirestore(orderId) { 
-            try { 
-                await db.collection("orders").doc(orderId).delete(); 
-                console.log("✅ تم حذف الطلب:", orderId);
-            } catch (e) { 
-                console.error("❌ فشل في حذف الطلب:", e); 
-                showAlert("تعذر حذف الطلب. الخطأ: " + (e.message || "غير معروف"));
-            } 
+            try { await db.collection("orders").doc(orderId).delete(); } 
+            catch (e) { console.error("فشل في حذف الطلب:", e); showToast('تعذر حذف الطلب', 'error'); } 
         }
 
         function loadData() {
-            if (unsubscribeListener) {
-                unsubscribeListener();
-                console.log("تم إلغاء الاشتراك السابق من المستمع");
-            }
-
-            console.log("بدء الاستماع للتغييرات في Firebase...");
-            
-            unsubscribeListener = db.collection("orders")
-                .orderBy("createdAt", "desc")
-                .onSnapshot((snapshot) => {
-                    const newOrders = [];
-                    snapshot.forEach((doc) => {
-                        newOrders.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    orders = newOrders;
-                    renderTable();
-                    console.log("✅ تم تحديث البيانات من السحابة:", orders.length, "طلب");
-                }, (error) => {
-                    console.error("❌ خطأ في جلب البيانات الحية:", error);
-                    console.error("رمز الخطأ:", error.code);
-                    console.error("رسالة الخطأ:", error.message);
-                    showAlert("تعذر الاتصال بقاعدة البيانات. تحقق من اتصالك بالإنترنت وقواعد Firebase.");
-                });
+            if (unsubscribeListener) { unsubscribeListener(); }
+            unsubscribeListener = db.collection("orders").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+                const newOrders = [];
+                snapshot.forEach((doc) => { newOrders.push({ id: doc.id, ...doc.data() }); });
+                orders = newOrders;
+                loadSortPreference();
+                sortAndRender();
+            }, (error) => { console.error("❌ خطأ في جلب البيانات:", error); showToast('تعذر الاتصال بقاعدة البيانات', 'error'); });
         }
 
         async function loadColumnSettings() { 
@@ -470,49 +467,29 @@
                 const doc = await db.collection('user_settings').doc(currentUser.username).get(); 
                 if (doc.exists && doc.data().columns) { 
                     const saved = doc.data().columns; 
-                    saved.forEach(s => { 
-                        const col = allColumns.find(c => c.id === s.id); 
-                        if (col) col.visible = s.visible; 
-                    }); 
+                    saved.forEach(s => { const col = allColumns.find(c => c.id === s.id); if (col) col.visible = s.visible; }); 
                 } 
-            } catch(e) { 
-                console.error("خطأ في تحميل إعدادات الأعمدة:", e); 
-            } 
+            } catch(e) { console.error("خطأ في تحميل إعدادات الأعمدة:", e); } 
         }
 
         async function saveColumnSettingsToFirestore() { 
             if (!currentUser) return; 
-            const columnsData = allColumns.map(c => ({id: c.id, visible: c.visible})); 
-            try { 
-                await db.collection('user_settings').doc(currentUser.username).set({ columns: columnsData }, { merge: true }); 
-            } catch(e) { 
-                console.error("خطأ في حفظ إعدادات الأعمدة:", e); 
-            } 
+            try { await db.collection('user_settings').doc(currentUser.username).set({ columns: allColumns.map(c => ({id: c.id, visible: c.visible})) }, { merge: true }); } 
+            catch(e) { console.error("خطأ في حفظ إعدادات الأعمدة:", e); } 
         }
 
         async function loadBranchesFromFirestore() {
             try {
                 const doc = await db.collection('branches').doc('list').get();
-                if (doc.exists && doc.data().names) { 
-                    branches = doc.data().names; 
-                }
-                else { 
-                    await db.collection('branches').doc('list').set({ names: branches }); 
-                }
+                if (doc.exists && doc.data().names) { branches = doc.data().names; }
+                else { await db.collection('branches').doc('list').set({ names: branches }); }
                 if (currentUser?.role === 'super_admin') {
                     const savedBranch = localStorage.getItem('noor_current_branch');
-                    if (savedBranch && (savedBranch === 'all' || branches.includes(savedBranch))) 
-                        currentBranch = savedBranch;
-                    else 
-                        currentBranch = 'all';
-                } else if (currentUser?.role === 'branch_admin') {
-                    currentBranch = currentUser.branch;
-                } else {
-                    currentBranch = branches[0] || 'رشيد';
-                }
+                    currentBranch = (savedBranch && (savedBranch === 'all' || branches.includes(savedBranch))) ? savedBranch : 'all';
+                } else if (currentUser?.role === 'branch_admin') { currentBranch = currentUser.branch; } 
+                else { currentBranch = branches[0] || 'رشيد'; }
                 populateBranchSelect();
             } catch (e) { 
-                console.error("خطأ في تحميل الفروع:", e); 
                 const localBranches = localStorage.getItem('noor_branches'); 
                 if (localBranches) branches = JSON.parse(localBranches); 
                 populateBranchSelect(); 
@@ -520,34 +497,20 @@
         }
 
         async function saveBranchesToFirestore() { 
-            try { 
-                await db.collection('branches').doc('list').set({ names: branches }); 
-                console.log("✅ تم حفظ الفروع بنجاح");
-            } catch (e) { 
-                console.error("خطأ في حفظ الفروع:", e); 
-            } 
+            try { await db.collection('branches').doc('list').set({ names: branches }); } 
+            catch (e) { console.error("خطأ في حفظ الفروع:", e); } 
         }
 
         async function loadUserFromFirestore(username) {
             try {
                 const doc = await db.collection('users').doc(username).get();
-                if (doc.exists) { 
-                    return { username, ...doc.data() }; 
-                }
+                if (doc.exists) { return { username, ...doc.data() }; }
                 else {
-                    const defaultUser = { 
-                        username, 
-                        name: username === 'admin' ? 'مدير النظام' : 'موظف استقبال', 
-                        role: username === 'admin' ? 'super_admin' : 'user', 
-                        branch: 'رشيد' 
-                    };
+                    const defaultUser = { username, name: username === 'admin' ? 'مدير النظام' : 'موظف استقبال', role: username === 'admin' ? 'super_admin' : 'user', branch: 'رشيد' };
                     await db.collection('users').doc(username).set(defaultUser);
                     return defaultUser;
                 }
-            } catch (e) { 
-                console.error("خطأ في تحميل بيانات المستخدم:", e); 
-                return null; 
-            }
+            } catch (e) { console.error("خطأ في تحميل بيانات المستخدم:", e); return null; }
         }
 
         async function login(event) {
@@ -557,52 +520,30 @@
             try {
                 await auth.signInWithEmailAndPassword(username + '@noor.com', password);
                 const userData = await loadUserFromFirestore(username);
-                if (!userData) { 
-                    await auth.signOut(); 
-                    return showAlert('بيانات المستخدم غير موجودة.'); 
-                }
+                if (!userData) { await auth.signOut(); return showAlert('بيانات المستخدم غير موجودة.'); }
                 currentUser = userData;
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 document.getElementById('loggedUserInfo').innerText = currentUser.name;
-                
-                // تحميل الفروع أولاً ثم تحديد الفرع الحالي
                 await loadBranchesFromFirestore();
-                
                 if (currentUser.role === 'super_admin') {
                     const savedBranch = localStorage.getItem('noor_current_branch');
                     currentBranch = (savedBranch === 'all' || branches.includes(savedBranch)) ? savedBranch : 'all';
-                } else if (currentUser.role === 'branch_admin') {
-                    currentBranch = currentUser.branch;
-                } else {
-                    currentBranch = branches[0] || 'رشيد';
-                }
-                
+                } else if (currentUser.role === 'branch_admin') { currentBranch = currentUser.branch; } 
+                else { currentBranch = branches[0] || 'رشيد'; }
                 await loadColumnSettings();
                 applyRolePermissions();
                 document.getElementById('currentBranchName').innerText = currentBranch === 'all' ? 'كل الفروع' : currentBranch;
                 document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
-                
-                // تحميل البيانات الحية
                 loadData();
-                
                 switchTab('main');
-                console.log("✅ تم تسجيل الدخول بنجاح، الفرع الحالي:", currentBranch);
-            } catch (e) { 
-                console.error("خطأ في تسجيل الدخول:", e); 
-                showAlert('اسم المستخدم أو كلمة المرور غير صحيحة'); 
-            }
+            } catch (e) { console.error("خطأ في تسجيل الدخول:", e); showAlert('اسم المستخدم أو كلمة المرور غير صحيحة'); }
             document.getElementById('passwordInput').value = '';
         }
 
         function logout() { 
-            if (unsubscribeListener) {
-                unsubscribeListener();
-                unsubscribeListener = null;
-            }
-            auth.signOut(); 
-            currentUser = null; 
-            orders = [];
+            if (unsubscribeListener) { unsubscribeListener(); unsubscribeListener = null; }
+            auth.signOut(); currentUser = null; orders = [];
             document.getElementById('mainApp').classList.add('hidden'); 
             document.getElementById('loginScreen').classList.remove('hidden'); 
         }
@@ -625,8 +566,7 @@
             currentBranch = b;
             localStorage.setItem('noor_current_branch', currentBranch);
             document.getElementById('currentBranchName').innerText = currentBranch === 'all' ? 'كل الفروع' : currentBranch;
-            currentPage = 1;
-            renderTable();
+            currentPage = 1; sortAndRender();
             if (currentTab === 'reports') renderAllReports();
         }
 
@@ -661,18 +601,13 @@
         function toggleOrderForm() { 
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; 
             const c = document.getElementById('formCollapsible'), i = document.getElementById('formToggleIcon'); 
-            c.classList.toggle('open'); 
-            i.classList.toggle('fa-chevron-up'); 
-            i.classList.toggle('fa-chevron-down'); 
+            c.classList.toggle('open'); i.classList.toggle('fa-chevron-up'); i.classList.toggle('fa-chevron-down'); 
         }
 
         function openQuickAdd() { 
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; 
             const c = document.getElementById('formCollapsible'), i = document.getElementById('formToggleIcon'); 
-            if (!c.classList.contains('open')) { 
-                c.classList.add('open'); 
-                i.classList.replace('fa-chevron-down','fa-chevron-up'); 
-            } 
+            if (!c.classList.contains('open')) { c.classList.add('open'); i.classList.replace('fa-chevron-down','fa-chevron-up'); } 
             document.getElementById('orderDate').value = new Date().toISOString().split('T')[0]; 
             document.getElementById('custName').value = 'عميل كاش'; 
             document.getElementById('custPhone').value = 'غير متوفر'; 
@@ -684,6 +619,14 @@
             document.getElementById('orderStatus').value = 'في المكتب'; 
             document.getElementById('deliveryStatus').value = 'لم يتم'; 
             document.getElementById('custName').focus(); 
+        }
+
+        function handleDeliveryChange() {
+            const delivery = document.getElementById('deliveryStatus').value;
+            const statusSelect = document.getElementById('orderStatus');
+            if (delivery === 'تم التسليم') {
+                statusSelect.value = 'بالمحل';
+            }
         }
 
         function calcRemaining() { 
@@ -701,83 +644,82 @@
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return;
-            
             const dateValue = document.getElementById('orderDate').value;
             let formattedDate;
-            if (dateValue) {
-                const [y, m, d] = dateValue.split('-');
-                formattedDate = `${d}/${m}/${y}`;
-            } else {
-                const now = new Date();
-                formattedDate = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
-            }
-            
+            if (dateValue) { const [y, m, d] = dateValue.split('-'); formattedDate = `${d}/${m}/${y}`; } 
+            else { const now = new Date(); formattedDate = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`; }
             let total = parseFloat(document.getElementById('totalPrice').value)||0;
             let paid = parseFloat(document.getElementById('paidAmount').value)||0;
             let orderBranch = currentBranch;
-            if (currentUser.role === 'super_admin' && currentBranch === 'all') 
-                orderBranch = branches[0] || 'رشيد';
-            
-            const custNameVal = document.getElementById('custName').value.trim() || 'بدون اسم';
-            const custPhoneVal = document.getElementById('custPhone').value.trim() || 'غير متوفر';
-            const soNumberVal = document.getElementById('orderSoNumber').value.trim();
-            const notesVal = document.getElementById('orderNotes').value.trim();
+            if (currentUser.role === 'super_admin' && currentBranch === 'all') orderBranch = branches[0] || 'رشيد';
+            let delivery = document.getElementById('deliveryStatus').value;
+            let status = document.getElementById('orderStatus').value;
+            if (delivery === 'تم التسليم') status = 'بالمحل';
             
             let newOrder = { 
-                date: formattedDate,
-                branch: orderBranch,
-                soNumber: soNumberVal, 
-                name: custNameVal,
-                phone: custPhoneVal,
+                date: formattedDate, branch: orderBranch,
+                soNumber: document.getElementById('orderSoNumber').value.trim(), 
+                name: document.getElementById('custName').value.trim() || 'بدون اسم',
+                phone: document.getElementById('custPhone').value.trim() || 'غير متوفر',
                 type: document.getElementById('orderType').value, 
-                status: document.getElementById('orderStatus').value,
-                delivery: document.getElementById('deliveryStatus').value, 
-                notes: notesVal,
-                total,
-                paid,
-                remaining: total - paid,
+                status: status,
+                delivery: delivery, 
+                notes: document.getElementById('orderNotes').value.trim(),
+                total, paid, remaining: total - paid,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-
             try {
-                const docRef = await db.collection("orders").add(newOrder);
-                console.log("✅ تمت إضافة الطلب بنجاح بمعرف:", docRef.id);
-                
+                await db.collection("orders").add(newOrder);
                 this.reset();
                 document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('remainingAmount').value = 0;
                 if (document.getElementById('formCollapsible').classList.contains('open')) toggleOrderForm();
-            } catch (e) {
-                console.error("❌ فشل في إضافة الطلب:", e);
-                showAlert("حدث خطأ أثناء حفظ الطلب. يرجى المحاولة مرة أخرى.");
-            }
+                showToast('✅ تمت إضافة الطلب بنجاح', 'success');
+            } catch (e) { console.error("❌ فشل في إضافة الطلب:", e); showToast('حدث خطأ أثناء حفظ الطلب', 'error'); }
         });
 
         async function toggleStatus(id) { 
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; 
             let o = orders.find(o => o.id == id); 
-            if (o) { 
-                o.status = o.status === 'في المكتب' ? 'بالمحل' : 'في المكتب'; 
-                await saveOrderToFirestore(o); 
+            if (o) {
+                if (o.delivery === 'تم التسليم') {
+                    showToast('✅ هذا الطلب تم تسليمه بالفعل', 'warning');
+                    return;
+                }
+                // تدوير بين الحالات: في المكتب → في المحل → في المكتب
+                if (o.status === 'في المكتب') {
+                    o.status = 'بالمحل';
+                    showToast('🏪 تم نقل الطلب إلى المحل', 'success');
+                } else {
+                    o.status = 'في المكتب';
+                    showToast('📦 تم إعادة الطلب إلى المكتب', 'success');
+                }
+                await saveOrderToFirestore(o);
             } 
         }
 
         async function toggleDelivery(id) { 
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; 
             let o = orders.find(o => o.id == id); 
-            if (o) { 
-                o.delivery = o.delivery === 'لم يتم' ? 'تم التسليم' : 'لم يتم'; 
-                await saveOrderToFirestore(o); 
+            if (o) {
+                if (o.delivery !== 'تم التسليم') {
+                    // تسليم الطلب للعميل
+                    o.delivery = 'تم التسليم';
+                    o.status = 'بالمحل';
+                    showToast('✅ تم تسليم النظارة للعميل - انتهت', 'success');
+                } else {
+                    // إرجاع الطلب
+                    o.delivery = 'لم يتم';
+                    o.status = 'بالمحل';
+                    showToast('🔄 تم إرجاع الطلب للمحل', 'warning');
+                }
+                await saveOrderToFirestore(o);
             } 
         }
 
         async function deleteOrder(id) { 
             if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) return; 
-            showConfirm("هل أنت متأكد من حذف هذا الطلب؟", async function(ok) { 
-                if (ok) { 
-                    await deleteOrderFromFirestore(id);
-                } 
-            }); 
+            showConfirm("هل أنت متأكد من حذف هذا الطلب؟", async function(ok) { if (ok) { await deleteOrderFromFirestore(id); } }); 
         }
 
         function openEditModal(id) { 
@@ -786,10 +728,7 @@
             if (!o) return; 
             document.getElementById('editId').value = o.id; 
             const parts = o.date.split('/'); 
-            if (parts.length === 3) 
-                document.getElementById('editDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`; 
-            else 
-                document.getElementById('editDate').value = ''; 
+            document.getElementById('editDate').value = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : ''; 
             document.getElementById('editName').value = o.name; 
             document.getElementById('editPhone').value = o.phone; 
             document.getElementById('editSoNumber').value = o.soNumber || ''; 
@@ -803,9 +742,7 @@
             document.getElementById('editModal').classList.add('active'); 
         }
 
-        function closeEditModal() { 
-            document.getElementById('editModal').classList.remove('active'); 
-        }
+        function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
 
         document.getElementById('editForm').addEventListener('submit', async function(e) { 
             e.preventDefault(); 
@@ -814,28 +751,372 @@
             let o = orders.find(o => o.id == id); 
             if (o) { 
                 const dateValue = document.getElementById('editDate').value; 
-                let formattedDate = o.date; 
-                if (dateValue) { 
-                    const [y, m, d] = dateValue.split('-'); 
-                    formattedDate = `${d}/${m}/${y}`; 
-                } 
-                o.date = formattedDate; 
+                if (dateValue) { const [y, m, d] = dateValue.split('-'); o.date = `${d}/${m}/${y}`; } 
                 o.name = document.getElementById('editName').value.trim() || 'بدون اسم'; 
                 o.phone = document.getElementById('editPhone').value.trim() || 'غير متوفر'; 
                 o.soNumber = document.getElementById('editSoNumber').value.trim(); 
                 o.type = document.getElementById('editType').value; 
                 o.status = document.getElementById('editStatus').value; 
-                o.delivery = document.getElementById('editDelivery').value; 
+                o.delivery = document.getElementById('editDelivery').value;
+                if (o.delivery === 'تم التسليم') {
+                    o.status = 'بالمحل';
+                }
                 o.total = parseFloat(document.getElementById('editTotal').value)||0; 
                 o.paid = parseFloat(document.getElementById('editPaid').value)||0; 
                 o.remaining = Math.max(0, o.total - o.paid); 
                 o.notes = document.getElementById('editNotes').value.trim(); 
                 await saveOrderToFirestore(o); 
                 closeEditModal();
+                showToast('✅ تم حفظ التعديلات بنجاح', 'success');
             } 
         });
 
-        // ========== دوال تخصيص الأعمدة ==========
+        // ========== استيراد ملف Odoo Sales Orders ==========
+        async function importOdooSalesOrders() {
+            if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) {
+                showToast('❌ غير مصرح لك بالاستيراد', 'error');
+                return;
+            }
+            
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx,.xls';
+            
+            input.onchange = async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                showLoading();
+                const reader = new FileReader();
+                
+                reader.onload = async function(event) {
+                    try {
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const odooOrders = XLSX.utils.sheet_to_json(firstSheet);
+                        
+                        console.log('📁 تم قراءة الملف:', odooOrders.length, 'طلب من Odoo');
+                        
+                        let imported = 0;
+                        let skipped = 0;
+                        let errors = [];
+                        
+                        let targetBranch = currentBranch;
+                        if (currentUser.role === 'super_admin' && currentBranch === 'all') {
+                            targetBranch = branches[0] || 'رشيد';
+                        } else if (currentUser.role === 'branch_admin') {
+                            targetBranch = currentUser.branch;
+                        }
+                        
+                        for (const odooOrder of odooOrders) {
+                            try {
+                                const orderRef = String(odooOrder['Order Reference'] || '').trim();
+                                const orderDate = odooOrder['Order Date'] || '';
+                                const customer = String(odooOrder['Customer'] || 'بدون اسم').trim();
+                                const phone = String(odooOrder['Phone'] || 'غير متوفر').trim();
+                                const salesPerson = String(odooOrder['Salesperson'] || odooOrder['New SalesPerson'] || '').trim();
+                                const total = parseFloat(odooOrder['Total'] || 0) || 0;
+                                const amountPaid = parseFloat(odooOrder['Amount Paid'] || 0) || 0;
+                                const paymentStatus = String(odooOrder['Payment Status'] || '').trim();
+                                const deliveryStatus = String(odooOrder['Delivery Status'] || '').trim();
+                                const invoiceStatus = String(odooOrder['Invoice Status'] || '').trim();
+                                
+                                let formattedDate = formatExcelDate(orderDate);
+                                
+                                let status = 'في المكتب';
+                                let delivery = 'لم يتم';
+                                
+                                if (deliveryStatus) {
+                                    const delLower = deliveryStatus.toLowerCase();
+                                    if (delLower.includes('تم') || delLower.includes('done') || delLower.includes('delivered')) {
+                                        status = 'بالمحل';
+                                        delivery = 'تم التسليم';
+                                    } else if (delLower.includes('جاهز') || delLower.includes('ready')) {
+                                        status = 'بالمحل';
+                                    }
+                                } else if (paymentStatus) {
+                                    const payLower = paymentStatus.toLowerCase();
+                                    if (payLower.includes('مدفوع') || payLower.includes('paid') || payLower === 'كامل') {
+                                        status = 'بالمحل';
+                                        delivery = 'تم التسليم';
+                                    } else if (payLower.includes('جزئي') || payLower.includes('partial')) {
+                                        status = 'بالمحل';
+                                    }
+                                }
+                                
+                                let notesParts = [];
+                                if (salesPerson) notesParts.push(`مندوب: ${salesPerson}`);
+                                if (paymentStatus) notesParts.push(`حالة الدفع: ${paymentStatus}`);
+                                if (deliveryStatus) notesParts.push(`حالة التوصيل: ${deliveryStatus}`);
+                                if (invoiceStatus) notesParts.push(`الفاتورة: ${invoiceStatus}`);
+                                notesParts.push('مستورد من Odoo');
+                                
+                                const newOrder = {
+                                    date: formattedDate,
+                                    branch: targetBranch,
+                                    soNumber: orderRef,
+                                    name: customer,
+                                    phone: phone,
+                                    type: 'نظارة وعدسات جديدة',
+                                    status: status,
+                                    delivery: delivery,
+                                    notes: notesParts.join(' | '),
+                                    total: total,
+                                    paid: amountPaid,
+                                    remaining: Math.max(0, total - amountPaid),
+                                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                    odooRef: orderRef,
+                                    importedAt: new Date().toISOString(),
+                                    importedBy: currentUser.name
+                                };
+                                
+                                await db.collection("orders").add(newOrder);
+                                imported++;
+                                
+                            } catch (err) {
+                                console.error('❌ خطأ في الطلب:', odooOrder['Order Reference'], err.message);
+                                skipped++;
+                                errors.push(odooOrder['Order Reference'] || 'غير معروف');
+                            }
+                        }
+                        
+                        hideLoading();
+                        
+                        if (imported > 0 && skipped === 0) {
+                            showToast(`✅ تم استيراد ${imported} طلب بنجاح`, 'success');
+                        } else if (imported > 0 && skipped > 0) {
+                            showToast(`✅ تم استيراد ${imported} طلب | ⚠️ فشل ${skipped}`, 'warning');
+                            console.warn('الطلبات اللي فشلت:', errors);
+                        } else {
+                            showToast('❌ فشل استيراد جميع الطلبات', 'error');
+                            console.error('تفاصيل الأخطاء:', errors);
+                        }
+                        
+                        if (currentTab === 'reports') renderAllReports();
+                        
+                    } catch (err) {
+                        hideLoading();
+                        console.error('❌ خطأ في قراءة الملف:', err);
+                        showToast('❌ الملف غير صالح. تأكد من تنسيق Excel الصحيح', 'error');
+                    }
+                };
+                
+                reader.readAsArrayBuffer(file);
+            };
+            
+            input.click();
+        }
+
+        function formatExcelDate(dateValue) {
+            if (!dateValue) {
+                const now = new Date();
+                return `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+            }
+            if (typeof dateValue === 'number') {
+                const d = new Date((dateValue - 25569) * 86400 * 1000);
+                return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+            }
+            const dateStr = String(dateValue);
+            if (dateStr.includes('-')) {
+                const [y, m, d] = dateStr.split('-');
+                return `${d}/${m}/${y}`;
+            }
+            if (dateStr.includes('/')) return dateStr;
+            const now = new Date();
+            return `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+        }
+
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: 'from-emerald-500 to-green-600',
+                error: 'from-rose-500 to-red-600',
+                warning: 'from-amber-500 to-orange-600',
+                info: 'from-blue-500 to-indigo-600'
+            };
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            
+            const existingToast = document.getElementById('toastNotification');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.id = 'toastNotification';
+            toast.className = `bg-gradient-to-r ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-lg`;
+            toast.innerHTML = `
+                <span class="text-2xl">${icons[type]}</span>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="mr-auto bg-white/20 hover:bg-white/30 rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999;
+                animation: slideUp 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                min-width: 350px; max-width: 90vw;
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+                toast.style.transition = 'all 0.5s ease';
+                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 500);
+            }, 5000);
+        }
+
+        function showLoading() {
+            const existingLoader = document.getElementById('loadingOverlay');
+            if (existingLoader) existingLoader.remove();
+            
+            const loader = document.createElement('div');
+            loader.id = 'loadingOverlay';
+            loader.innerHTML = `
+                <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] flex items-center justify-center">
+                    <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl text-center">
+                        <div class="text-5xl mb-4" style="animation: spin 1s linear infinite;">⚙️</div>
+                        <p class="font-bold text-xl text-slate-700 dark:text-slate-200">جاري استيراد الطلبات...</p>
+                        <p class="text-sm text-slate-400 mt-2">يرجى الانتظار</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(loader);
+        }
+
+        function hideLoading() {
+            const loader = document.getElementById('loadingOverlay');
+            if (loader) {
+                loader.style.opacity = '0';
+                loader.style.transition = 'opacity 0.3s';
+                setTimeout(() => loader.remove(), 300);
+            }
+        }
+
+        // ========== نظام الترتيب ==========
+        function sortByColumn(columnId) {
+            if (currentSortColumn === columnId) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = columnId;
+                currentSortDirection = 'asc';
+            }
+            saveSortPreference();
+            sortAndRender();
+        }
+
+        function sortAndRender() {
+            orders.sort((a, b) => {
+                let valA, valB;
+                
+                switch(currentSortColumn) {
+                    case 'date':
+                        valA = parseDate(a.date);
+                        valB = parseDate(b.date);
+                        break;
+                    case 'soNumber':
+                        valA = (a.soNumber || '').toString().toLowerCase();
+                        valB = (b.soNumber || '').toString().toLowerCase();
+                        return currentSortDirection === 'asc' ? naturalCompare(valA, valB) : naturalCompare(valB, valA);
+                    case 'name':
+                        valA = (a.name || '').toString().toLowerCase();
+                        valB = (b.name || '').toString().toLowerCase();
+                        break;
+                    case 'phone':
+                        valA = (a.phone || '').toString().toLowerCase();
+                        valB = (b.phone || '').toString().toLowerCase();
+                        break;
+                    case 'type':
+                        valA = (a.type || '').toString().toLowerCase();
+                        valB = (b.type || '').toString().toLowerCase();
+                        break;
+                    case 'total':
+                        valA = Number(a.total) || 0;
+                        valB = Number(b.total) || 0;
+                        break;
+                    case 'paid':
+                        valA = Number(a.paid) || 0;
+                        valB = Number(b.paid) || 0;
+                        break;
+                    case 'remaining':
+                        valA = Number(a.remaining) || 0;
+                        valB = Number(b.remaining) || 0;
+                        break;
+                    case 'status':
+                        valA = (a.status || '').toString().toLowerCase();
+                        valB = (b.status || '').toString().toLowerCase();
+                        break;
+                    case 'delivery':
+                        valA = (a.delivery || '').toString().toLowerCase();
+                        valB = (b.delivery || '').toString().toLowerCase();
+                        break;
+                    case 'notes':
+                        valA = (a.notes || '').toString().toLowerCase();
+                        valB = (b.notes || '').toString().toLowerCase();
+                        break;
+                    case 'days':
+                        valA = getDaysSince(a.date);
+                        valB = getDaysSince(b.date);
+                        break;
+                    case 'createdAt':
+                        valA = a.createdAt ? (a.createdAt.seconds || 0) : 0;
+                        valB = b.createdAt ? (b.createdAt.seconds || 0) : 0;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                let comparison = 0;
+                if (valA < valB) comparison = -1;
+                else if (valA > valB) comparison = 1;
+                
+                return currentSortDirection === 'asc' ? comparison : -comparison;
+            });
+            
+            currentPage = 1;
+            renderTable();
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+            return new Date(0);
+        }
+
+        function naturalCompare(a, b) {
+            const ax = [], bx = [];
+            a.replace(/(\d+)|(\D+)/g, function(_, $1, $2) { ax.push([$1 || Infinity, $2 || '']); });
+            b.replace(/(\d+)|(\D+)/g, function(_, $1, $2) { bx.push([$1 || Infinity, $2 || '']); });
+            
+            while (ax.length && bx.length) {
+                const an = ax.shift();
+                const bn = bx.shift();
+                const nn = (an[0] - bn[0]) || an[1].localeCompare(bn[1]);
+                if (nn) return nn;
+            }
+            return ax.length - bx.length;
+        }
+
+        function saveSortPreference() {
+            if (currentUser) {
+                localStorage.setItem('noor_sort_column', currentSortColumn);
+                localStorage.setItem('noor_sort_direction', currentSortDirection);
+            }
+        }
+
+        function loadSortPreference() {
+            const savedColumn = localStorage.getItem('noor_sort_column');
+            const savedDirection = localStorage.getItem('noor_sort_direction');
+            if (savedColumn && allColumns.some(c => c.id === savedColumn || savedColumn === 'createdAt')) {
+                currentSortColumn = savedColumn;
+            }
+            if (savedDirection === 'asc' || savedDirection === 'desc') {
+                currentSortDirection = savedDirection;
+            }
+        }
+
+        // ========== باقي الدوال ==========
         function openColumnSettings() {
             const container = document.getElementById('columnsCheckboxes');
             container.innerHTML = allColumns.map(col => 
@@ -864,9 +1145,7 @@
             renderTable();
         }
 
-        function closeColumnSettings() {
-            document.getElementById('columnSettingsModal').classList.remove('active');
-        }
+        function closeColumnSettings() { document.getElementById('columnSettingsModal').classList.remove('active'); }
 
         function openBranchesModal() { 
             if (!currentUser || currentUser.role !== 'super_admin') return; 
@@ -874,9 +1153,7 @@
             document.getElementById('branchesModal').classList.add('active'); 
         }
 
-        function closeBranchesModal() { 
-            document.getElementById('branchesModal').classList.remove('active'); 
-        }
+        function closeBranchesModal() { document.getElementById('branchesModal').classList.remove('active'); }
 
         function renderBranchesList() { 
             document.getElementById('branchesList').innerHTML = branches.map((b, idx) => 
@@ -897,28 +1174,18 @@
             branches.push(name); 
             await saveBranchesToFirestore(); 
             document.getElementById('newBranchName').value = ''; 
-            populateBranchSelect(); 
-            renderBranchesList(); 
+            populateBranchSelect(); renderBranchesList(); 
         }
 
         async function editBranch(index) { 
             const newName = prompt('اسم الفرع الجديد:', branches[index]); 
             if (newName && newName.trim() && !branches.includes(newName.trim())) { 
-                const old = branches[index]; 
-                branches[index] = newName.trim(); 
-                for (const o of orders) {
-                    if (o.branch === old) {
-                        o.branch = newName.trim();
-                        await saveOrderToFirestore(o);
-                    }
-                }
+                const old = branches[index]; branches[index] = newName.trim(); 
+                for (const o of orders) { if (o.branch === old) { o.branch = newName.trim(); await saveOrderToFirestore(o); } }
                 if (currentBranch === old) switchBranch(newName.trim()); 
                 await saveBranchesToFirestore();
-                populateBranchSelect(); 
-                renderBranchesList(); 
-            } else if (newName && branches.includes(newName.trim())) {
-                showAlert('الفرع موجود'); 
-            }
+                populateBranchSelect(); renderBranchesList(); 
+            } else if (newName && branches.includes(newName.trim())) { showAlert('الفرع موجود'); }
         }
 
         async function deleteBranch(index) { 
@@ -926,17 +1193,11 @@
             const branchToDelete = branches[index]; 
             showConfirm(`حذف فرع "${branchToDelete}" سينقل طلباته إلى "عام". متابعة؟`, async function(ok) { 
                 if (ok) { 
-                    for (const o of orders) {
-                        if (o.branch === branchToDelete) {
-                            o.branch = 'عام';
-                            await saveOrderToFirestore(o);
-                        }
-                    }
+                    for (const o of orders) { if (o.branch === branchToDelete) { o.branch = 'عام'; await saveOrderToFirestore(o); } }
                     branches.splice(index, 1); 
                     if (currentBranch === branchToDelete) switchBranch(branches[0]); 
                     await saveBranchesToFirestore();
-                    populateBranchSelect(); 
-                    renderBranchesList(); 
+                    populateBranchSelect(); renderBranchesList(); 
                 } 
             }); 
         }
@@ -947,9 +1208,7 @@
             document.getElementById('usersModal').classList.add('active'); 
         }
 
-        function closeUsersModal() { 
-            document.getElementById('usersModal').classList.remove('active'); 
-        }
+        function closeUsersModal() { document.getElementById('usersModal').classList.remove('active'); }
 
         async function renderUsersList() {
             const container = document.getElementById('usersList');
@@ -961,23 +1220,16 @@
                     const user = doc.data();
                     const roleText = user.role === 'super_admin' ? 'مدير عام' : (user.role === 'branch_admin' ? 'مدير فرع' : 'موظف');
                     html += `<div class="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
-                        <div>
-                            <span class="font-medium text-base dark:text-white">${user.name || doc.id}</span>
+                        <div><span class="font-medium text-base dark:text-white">${user.name || doc.id}</span>
                             <span class="text-xs text-slate-500 dark:text-slate-400 mr-2">(${doc.id})</span>
-                            <span class="badge bg-odoo-100 text-odoo-700 dark:bg-odoo-800 dark:text-odoo-200 text-xs px-2 py-0.5 rounded-full mr-2">${roleText}</span>
-                            <span class="text-xs text-slate-500">${user.branch || ''}</span>
-                        </div>
+                            <span class="badge bg-odoo-100 text-odoo-700 text-xs px-2 py-0.5 rounded-full mr-2">${roleText}</span>
+                            <span class="text-xs text-slate-500">${user.branch || ''}</span></div>
                         <div class="flex gap-1">
-                            <button onclick="editUser('${doc.id}')" class="text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteUser('${doc.id}')" class="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>`;
+                            <button onclick="editUser('${doc.id}')" class="text-sky-600 hover:bg-sky-50 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteUser('${doc.id}')" class="text-rose-600 hover:bg-rose-50 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button></div></div>`;
                 });
                 container.innerHTML = html || '<p class="text-slate-400 text-center">لا يوجد مستخدمين</p>';
-            } catch(e) { 
-                console.error("خطأ في عرض المستخدمين:", e); 
-                container.innerHTML = '<p class="text-red-500 text-center">فشل تحميل المستخدمين</p>'; 
-            }
+            } catch(e) { container.innerHTML = '<p class="text-red-500 text-center">فشل تحميل المستخدمين</p>'; }
         }
 
         async function addNewUser() {
@@ -990,20 +1242,13 @@
             if (password.length < 6) return showAlert('كلمة المرور يجب أن تكون 6 خانات على الأقل');
             try {
                 await auth.createUserWithEmailAndPassword(username + '@noor.com', password);
-                await db.collection('users').doc(username).set({ 
-                    name: displayName, 
-                    role: role, 
-                    branch: role === 'super_admin' ? 'all' : branch 
-                });
+                await db.collection('users').doc(username).set({ name: displayName, role: role, branch: role === 'super_admin' ? 'all' : branch });
                 document.getElementById('newUsername').value = ''; 
                 document.getElementById('newUserPassword').value = ''; 
                 document.getElementById('newUserDisplayName').value = '';
                 renderUsersList();
-                showAlert('تم إضافة المستخدم بنجاح');
-            } catch(e) { 
-                console.error("خطأ في إضافة المستخدم:", e); 
-                showAlert(e.code === 'auth/email-already-in-use' ? 'اسم المستخدم موجود بالفعل' : 'فشل إضافة المستخدم'); 
-            }
+                showToast('تم إضافة المستخدم بنجاح', 'success');
+            } catch(e) { showToast(e.code === 'auth/email-already-in-use' ? 'اسم المستخدم موجود بالفعل' : 'فشل إضافة المستخدم', 'error'); }
         }
 
         async function editUser(username) {
@@ -1011,53 +1256,28 @@
                 const doc = await db.collection('users').doc(username).get();
                 if (!doc.exists) return;
                 const user = doc.data();
-                const newName = prompt('الاسم الجديد:', user.name);
-                if (newName === null) return;
+                const newName = prompt('الاسم الجديد:', user.name); if (newName === null) return;
                 const roleOptions = ['super_admin', 'branch_admin', 'user'];
-                const currentRoleIndex = roleOptions.indexOf(user.role);
-                const newRoleIndex = prompt('الدور الجديد:\n0 - مدير عام\n1 - مدير فرع\n2 - موظف', currentRoleIndex);
+                const newRoleIndex = prompt('الدور الجديد:\n0 - مدير عام\n1 - مدير فرع\n2 - موظف', roleOptions.indexOf(user.role));
                 if (newRoleIndex === null) return;
                 const newRole = roleOptions[parseInt(newRoleIndex)] || user.role;
                 let newBranch = user.branch;
-                if (newRole === 'branch_admin' || newRole === 'user') {
-                    newBranch = prompt('الفرع:', user.branch);
-                    if (newBranch === null) return;
-                } else { 
-                    newBranch = 'all'; 
-                }
-                await db.collection('users').doc(username).update({ 
-                    name: newName, 
-                    role: newRole, 
-                    branch: newBranch 
-                });
+                if (newRole === 'branch_admin' || newRole === 'user') { newBranch = prompt('الفرع:', user.branch); if (newBranch === null) return; } 
+                else { newBranch = 'all'; }
+                await db.collection('users').doc(username).update({ name: newName, role: newRole, branch: newBranch });
                 renderUsersList();
-                showAlert('تم تحديث المستخدم بنجاح');
-            } catch(e) { 
-                console.error("خطأ في تحديث المستخدم:", e); 
-                showAlert('فشل تحديث المستخدم'); 
-            }
+                showToast('تم تحديث المستخدم بنجاح', 'success');
+            } catch(e) { showToast('فشل تحديث المستخدم', 'error'); }
         }
 
         async function deleteUser(username) {
             if (username === 'admin') return showAlert('لا يمكن حذف المدير العام الافتراضي');
             showConfirm(`هل أنت متأكد من حذف المستخدم "${username}"؟`, async function(ok) {
-                if (ok) {
-                    try {
-                        await db.collection('users').doc(username).delete();
-                        renderUsersList();
-                        showAlert('تم حذف المستخدم من قاعدة البيانات.');
-                    } catch(e) { 
-                        console.error("خطأ في حذف المستخدم:", e); 
-                        showAlert('فشل حذف المستخدم'); 
-                    }
-                }
+                if (ok) { try { await db.collection('users').doc(username).delete(); renderUsersList(); showToast('تم حذف المستخدم', 'success'); } catch(e) { showToast('فشل حذف المستخدم', 'error'); } }
             });
         }
 
-        // ========== التصفّح ==========
-        function resetPagination() { 
-            currentPage = 1; 
-        }
+        function resetPagination() { currentPage = 1; }
 
         function goToPage(page) {
             const totalPages = Math.ceil(getFilteredOrders().length / pageSize);
@@ -1068,10 +1288,7 @@
         function getFilteredOrders() {
             let branchOrders;
             if (currentUser?.role === 'super_admin') {
-                if (currentBranch === 'all') 
-                    branchOrders = orders;
-                else 
-                    branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
+                branchOrders = currentBranch === 'all' ? orders : orders.filter(o => (o.branch || 'رشيد') === currentBranch);
             } else if (currentUser?.role === 'branch_admin') {
                 branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentUser.branch);
             } else {
@@ -1080,7 +1297,8 @@
             const search = document.getElementById('searchBar')?.value?.toLowerCase() || '';
             return branchOrders.filter(o => {
                 if (currentFilter === 'office' && o.status !== 'في المكتب') return false;
-                if (currentFilter === 'shop' && o.status !== 'بالمحل') return false;
+                if (currentFilter === 'shop' && (o.status !== 'بالمحل' || o.delivery === 'تم التسليم')) return false;
+                if (currentFilter === 'delivered' && o.delivery !== 'تم التسليم') return false;
                 if (currentFilter === 'ready' && (o.status !== 'بالمحل' || o.delivery === 'تم التسليم')) return false;
                 if (currentFilter === 'debt' && o.remaining <= 0) return false;
                 return [o.name, o.phone, o.soNumber||'', o.notes||''].join(' ').toLowerCase().includes(search);
@@ -1093,32 +1311,19 @@
                 b.classList.remove('bg-white','dark:bg-slate-500','text-odoo-700','dark:text-white','shadow-sm','font-bold'); 
                 b.classList.add('text-slate-600','dark:text-slate-300','font-medium'); 
             }); 
-            const activeMap = {
-                office:'btnFilterOffice', 
-                shop:'btnFilterShop', 
-                debt:'btnFilterDebt', 
-                ready:'btnFilterReady', 
-                all:'btnFilterAll'
-            };
+            const activeMap = { office:'btnFilterOffice', shop:'btnFilterShop', delivered:'btnFilterDelivered', debt:'btnFilterDebt', ready:'btnFilterReady', all:'btnFilterAll' };
             const active = document.getElementById(activeMap[type] || 'btnFilterAll'); 
             if (active) { 
                 active.classList.add('bg-white','dark:bg-slate-500','text-odoo-700','dark:text-white','shadow-sm','font-bold'); 
                 active.classList.remove('text-slate-600','dark:text-slate-300','font-medium'); 
             } 
-            resetPagination(); 
-            renderTable(); 
+            resetPagination(); renderTable(); 
         }
 
-        function searchOrders() { 
-            resetPagination(); 
-            renderTable(); 
-        }
+        function searchOrders() { resetPagination(); renderTable(); }
 
         function sendWhatsApp(phone, name) { 
-            if (!phone || phone === 'غير متوفر') { 
-                showAlert('رقم الهاتف غير متوفر'); 
-                return; 
-            } 
+            if (!phone || phone === 'غير متوفر') { showToast('رقم الهاتف غير متوفر', 'warning'); return; } 
             let clean = phone.replace(/[^\d]/g, ''); 
             if (!clean.startsWith('2')) clean = '2' + clean; 
             window.open(`https://wa.me/${clean}?text=${encodeURIComponent(`مرحباً ${name}،\nنود إعلامك بحالة طلبك في نور للبصريات.`)}`, '_blank'); 
@@ -1132,17 +1337,27 @@
             const names = { 
                 date:'التاريخ', soNumber:'رقم SO', name:'العميل', phone:'الهاتف', 
                 type:'النوع', total:'الإجمالي', paid:'المدفوع', remaining:'المتبقي', 
-                status:'التواجد', delivery:'التسليم', notes:'ملاحظات', days:'الأيام' 
+                status:'الحالة', delivery:'التسليم', notes:'ملاحظات', days:'الأيام' 
             };
+            
             visibleCols.forEach(col => { 
-                headerHtml += `<th class="p-4 border-b border-slate-200 dark:border-slate-600${['total','paid','remaining','status','delivery','days'].includes(col.id)?' text-center':''}">${names[col.id]}</th>`; 
+                const isActive = currentSortColumn === col.id;
+                const isSortable = true;
+                
+                headerHtml += `<th class="p-4 border-b border-slate-200 dark:border-slate-600${['total','paid','remaining','status','delivery','days'].includes(col.id)?' text-center':''} 
+                    ${isSortable ? 'sortable-header' : ''}"
+                    ${isSortable ? `onclick="sortByColumn('${col.id}')" title="اضغط للترتيب"` : ''}>
+                    ${isActive ? `<span class="text-odoo-500 font-bold text-xs">${currentSortDirection === 'asc' ? '▲' : '▼'}</span> ` : ''}
+                    ${names[col.id]}
+                    ${!isActive ? '<span class="text-slate-300 text-xs mr-1">⇅</span>' : ''}
+                </th>`; 
             });
+            
             headerHtml += '<th class="p-4 border-b border-slate-200 dark:border-slate-600 text-center no-print">واتساب</th>';
             if (isAdmin) headerHtml += '<th class="p-4 border-b border-slate-200 dark:border-slate-600 text-center no-print">إجراءات</th>';
             theadRow.innerHTML = headerHtml;
 
-            const tbody = document.getElementById('tableBody'); 
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
             const filtered = getFilteredOrders();
             const totalCount = filtered.length;
             const totalPages = Math.ceil(totalCount / pageSize);
@@ -1150,44 +1365,80 @@
             const start = (currentPage - 1) * pageSize;
             const displayOrders = filtered.slice(start, start + pageSize);
 
-            let officeCount = 0, shopCount = 0, debtSum = 0;
+            let officeCount = 0, shopCount = 0, deliveredCount = 0, debtSum = 0;
             filtered.forEach(o => { 
-                if (o.status === 'في المكتب') officeCount++; 
+                if (o.delivery === 'تم التسليم') deliveredCount++;
+                else if (o.status === 'في المكتب') officeCount++; 
                 else if (o.status === 'بالمحل') shopCount++; 
                 if (o.remaining > 0) debtSum += Number(o.remaining); 
             });
 
+            document.getElementById('statTotal').innerText = totalCount;
+            document.getElementById('statMiami').innerText = officeCount;
+            document.getElementById('statShop').innerText = shopCount;
+            document.getElementById('statDelivered').innerText = deliveredCount;
+            document.getElementById('statDebt').innerText = debtSum.toLocaleString('ar-EG');
             document.getElementById('noDataView').classList.toggle('hidden', totalCount > 0);
 
             displayOrders.forEach(o => {
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-slate-700 dark:text-slate-200 text-base";
                 const days = getDaysSince(o.date);
-                if (o.status === 'في المكتب' && days >= 30) tr.classList.add('delayed-danger');
-                else if (o.status === 'في المكتب' && days >= 14) tr.classList.add('delayed-danger');
-                else if (o.status === 'في المكتب' && days >= 7) tr.classList.add('delayed-warning');
+                
+                if (o.delivery === 'تم التسليم') {
+                    tr.classList.add('delivered-row');
+                } else if (o.status === 'في المكتب' && days >= 30) {
+                    tr.classList.add('delayed-danger');
+                } else if (o.status === 'في المكتب' && days >= 14) {
+                    tr.classList.add('delayed-danger');
+                } else if (o.status === 'في المكتب' && days >= 7) {
+                    tr.classList.add('delayed-warning');
+                }
 
                 let rowHtml = '';
                 visibleCols.forEach(col => {
                     switch(col.id) {
                         case 'date': rowHtml += `<td class="p-4">${o.date}</td>`; break;
                         case 'soNumber': rowHtml += `<td class="p-4 font-mono font-bold text-odoo-600 dark:text-odoo-400">${o.soNumber||'—'}</td>`; break;
-                        case 'name': rowHtml += `<td class="p-4 font-semibold">${o.name}</td>`; break;
+                        case 'name': 
+                            const nameStyle = o.delivery === 'تم التسليم' ? 'text-slate-400 dark:text-slate-500' : 'font-semibold';
+                            rowHtml += `<td class="p-4 ${nameStyle}">${o.name}${o.delivery === 'تم التسليم' ? ' ✅' : ''}</td>`; 
+                            break;
                         case 'phone': rowHtml += `<td class="p-4">${o.phone}</td>`; break;
                         case 'type': rowHtml += `<td class="p-4"><span class="type-badge ${getTypeBadgeClass(o.type)}">${o.type}</span></td>`; break;
                         case 'total': rowHtml += `<td class="p-4 text-center font-bold">${o.total}</td>`; break;
                         case 'paid': rowHtml += `<td class="p-4 text-center text-emerald-600 dark:text-emerald-400">${o.paid}</td>`; break;
                         case 'remaining': rowHtml += `<td class="p-4 text-center ${o.remaining>0?'text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-900/20':'text-slate-400 dark:text-slate-500'}">${o.remaining}</td>`; break;
                         case 'status':
-                            const badge = o.status==='في المكتب'
-                                ?'bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
-                                :'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300';
-                            rowHtml += `<td class="p-4 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${badge} border border-amber-200 dark:border-amber-700/40"><span class="w-2 h-2 rounded-full ${o.status==='في المكتب'?'bg-amber-500':'bg-emerald-500'}"></span>${o.status}</span></td>`; break;
+                            let statusBadge, statusDot;
+                            
+                            if (o.delivery === 'تم التسليم') {
+                                statusBadge = 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700';
+                                statusDot = 'bg-green-600';
+                                rowHtml += `<td class="p-4 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${statusBadge} border"><span class="w-2 h-2 rounded-full ${statusDot}"></span>✅ تم التسليم</span></td>`;
+                            } else if (o.status === 'بالمحل') {
+                                statusBadge = 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700';
+                                statusDot = 'bg-blue-500';
+                                rowHtml += `<td class="p-4 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${statusBadge} border"><span class="w-2 h-2 rounded-full ${statusDot}"></span>🏪 في المحل</span></td>`;
+                            } else {
+                                statusBadge = 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700';
+                                statusDot = 'bg-amber-500';
+                                rowHtml += `<td class="p-4 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${statusBadge} border"><span class="w-2 h-2 rounded-full ${statusDot}"></span>📦 في المكتب</span></td>`;
+                            }
+                            break;
                         case 'delivery':
-                            const d = o.delivery==='تم التسليم'
-                                ?'<span class="text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 rounded-full text-sm"><i class="fa-solid fa-check"></i> تم</span>'
-                                :'<span class="text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-sm"><i class="fa-solid fa-clock"></i> لم يتم</span>';
-                            rowHtml += `<td class="p-4 text-center ${isAdmin?'cursor-pointer':''}" ${isAdmin?`onclick="toggleDelivery('${o.id}')"`:''}>${d}</td>`; break;
+                            const deliveryIcon = o.delivery === 'تم التسليم' ? '✅' : '⏳';
+                            const deliveryText = o.delivery === 'تم التسليم' ? 'تم' : 'لم يتم';
+                            const deliveryClass = o.delivery === 'تم التسليم' 
+                                ? 'text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-900/30' 
+                                : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700';
+                            
+                            rowHtml += `<td class="p-4 text-center ${isAdmin?'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600':''}" ${isAdmin?`onclick="toggleDelivery('${o.id}')" title="اضغط لتغيير حالة التسليم"`:''}>
+                                <span class="px-3 py-1 rounded-full text-sm ${deliveryClass}">
+                                    ${deliveryIcon} ${deliveryText}
+                                </span>
+                            </td>`;
+                            break;
                         case 'notes': rowHtml += `<td class="p-4 max-w-[140px] truncate text-slate-500 dark:text-slate-400">${o.notes||'—'}</td>`; break;
                         case 'days':
                             let daysHtml = days;
@@ -1200,19 +1451,15 @@
                 rowHtml += `<td class="p-4 text-center no-print"><button onclick="sendWhatsApp('${o.phone}', '${o.name.replace(/'/g, "\\'")}')" class="whatsapp-btn p-2 rounded-lg"><i class="fa-brands fa-whatsapp text-2xl"></i></button></td>`;
                 if (isAdmin) {
                     rowHtml += `<td class="p-4 text-center no-print"><div class="flex justify-center gap-1">
-                        <button onclick="openEditModal('${o.id}')" class="text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 p-2 rounded-lg"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="toggleStatus('${o.id}')" class="text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 p-2 rounded-lg"><i class="fa-solid fa-right-left text-lg"></i></button>
-                        <button onclick="deleteOrder('${o.id}')" class="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-2 rounded-lg"><i class="fa-regular fa-trash-can text-lg"></i></button>
+                        <button onclick="openEditModal('${o.id}')" class="text-sky-600 hover:bg-sky-50 p-2 rounded-lg"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                        <button onclick="toggleStatus('${o.id}')" class="text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg"><i class="fa-solid fa-right-left text-lg"></i></button>
+                        <button onclick="deleteOrder('${o.id}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-lg"><i class="fa-regular fa-trash-can text-lg"></i></button>
                     </div></td>`;
                 }
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('statTotal').innerText = totalCount;
-            document.getElementById('statMiami').innerText = officeCount;
-            document.getElementById('statShop').innerText = shopCount;
-            document.getElementById('statDebt').innerText = debtSum.toLocaleString('ar-EG');
             updateSmartAlerts(filtered);
             if (currentTab === 'reports') renderAllReports();
 
@@ -1225,114 +1472,91 @@
                 prevBtn.disabled = currentPage <= 1;
                 nextBtn.disabled = currentPage >= totalPages;
                 pageInfo.innerText = `صفحة ${currentPage} من ${totalPages}`;
-            } else {
-                paginationDiv.classList.add('hidden');
-            }
+            } else { paginationDiv.classList.add('hidden'); }
         }
 
         function updateSmartAlerts(branchOrders) {
             let c7=0, c14=0, c30=0;
             branchOrders.filter(o => o.status === 'في المكتب').forEach(o => { 
                 const d = getDaysSince(o.date); 
-                if (d >= 30) c30++; 
-                else if (d >= 14) c14++; 
-                else if (d >= 7) c7++; 
+                if (d >= 30) c30++; else if (d >= 14) c14++; else if (d >= 7) c7++; 
             });
             let html = '';
-            if (c30>0) html += `<div class="odoo-card p-4 rounded-xl mb-3 flex items-center gap-3 text-red-700 dark:text-red-400"><i class="fa-solid fa-circle-exclamation text-2xl"></i> <span class="font-bold text-lg">${c30} طلبات متأخرة جداً (30 يوم أو أكثر)</span></div>`;
-            if (c14>0) html += `<div class="odoo-card p-4 rounded-xl mb-3 flex items-center gap-3 text-red-600 dark:text-red-400"><i class="fa-solid fa-triangle-exclamation text-2xl"></i> <span class="font-bold text-lg">${c14} طلبات متأخرة (14 يوم)</span></div>`;
-            if (c7>0) html += `<div class="odoo-card p-4 rounded-xl mb-3 flex items-center gap-3 text-amber-600 dark:text-amber-400"><i class="fa-solid fa-exclamation-triangle text-2xl"></i> <span class="font-bold text-lg">${c7} طلبات متأخرة (7 أيام)</span></div>`;
+            if (c30>0) html += `<div class="odoo-card p-4 rounded-xl mb-3 flex items-center gap-3 text-red-700"><i class="fa-solid fa-circle-exclamation text-2xl"></i> <span class="font-bold text-lg">${c30} طلبات متأخرة جداً (30 يوم أو أكثر)</span></div>`;
+            if (c14>0) html += `<div class="odoo-card p-4 rounded-xl mb-3 flex items-center gap-3 text-red-600"><i class="fa-solid fa-triangle-exclamation text-2xl"></i> <span class="font-bold text-lg">${c14} طلبات متأخرة (14 يوم)</span></div>`;
+            if (c7>0) html += `<div class="odoo-card p-4 rounded-xl mb-3 flex items-center gap-3 text-amber-600"><i class="fa-solid fa-exclamation-triangle text-2xl"></i> <span class="font-bold text-lg">${c7} طلبات متأخرة (7 أيام)</span></div>`;
             document.getElementById('smartAlerts').innerHTML = html;
         }
 
         function renderAllReports() {
-            let branchOrders;
-            if (currentBranch === 'all') {
-                branchOrders = orders;
-            } else {
-                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
-            }
+            let branchOrders = currentBranch === 'all' ? orders : orders.filter(o => (o.branch || 'رشيد') === currentBranch);
             
-            const office = branchOrders.filter(o => o.status === 'في المكتب');
-            document.getElementById('reportOffice').innerHTML = office.length ? office.map(o => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            const office = branchOrders.filter(o => o.status === 'في المكتب' && o.delivery !== 'تم التسليم');
+            document.getElementById('reportOffice').innerHTML = office.length ? office.map(o => `<div class="flex justify-between border-b pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
             
-            const received = branchOrders.filter(o => o.status === 'بالمحل');
-            document.getElementById('reportReceived').innerHTML = received.length ? received.map(o => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            const received = branchOrders.filter(o => o.status === 'بالمحل' && o.delivery !== 'تم التسليم');
+            document.getElementById('reportReceived').innerHTML = received.length ? received.map(o => `<div class="flex justify-between border-b pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            
+            const delivered = branchOrders.filter(o => o.delivery === 'تم التسليم');
+            document.getElementById('reportDelivered').innerHTML = delivered.length ? delivered.map(o => `<div class="flex justify-between border-b pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
             
             const customers = [...new Set(branchOrders.map(o => o.phone))].map(phone => { 
                 const cust = branchOrders.find(o => o.phone === phone); 
                 return { name: cust ? cust.name : '', phone, count: branchOrders.filter(o => o.phone === phone).length }; 
             });
-            document.getElementById('reportCustomers').innerHTML = customers.length ? customers.map(c => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${c.name} (${c.count})</span><span>${c.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
+            document.getElementById('reportCustomers').innerHTML = customers.length ? customers.map(c => `<div class="flex justify-between border-b pb-2"><span>${c.name} (${c.count})</span><span>${c.phone}</span></div>`).join('') : '<p class="text-slate-400">لا يوجد</p>';
             
-            const delayed = branchOrders.filter(o => o.status === 'في المكتب' && getDaysSince(o.date) >= 7).sort((a,b) => getDaysSince(b.date) - getDaysSince(a.date));
+            const delayed = branchOrders.filter(o => o.status === 'في المكتب' && getDaysSince(o.date) >= 7 && o.delivery !== 'تم التسليم').sort((a,b) => getDaysSince(b.date) - getDaysSince(a.date));
             document.getElementById('reportDelayed').innerHTML = delayed.length ? delayed.map(o => { 
                 const d = getDaysSince(o.date); 
-                return `<div class="flex justify-between border-b dark:border-slate-600 pb-2 ${d>=30?'text-red-600':d>=14?'text-red-500':'text-amber-600'}"><span>${o.name} (${d} يوم)</span><span>${o.phone}</span></div>`; 
+                return `<div class="flex justify-between border-b pb-2 ${d>=30?'text-red-600':d>=14?'text-red-500':'text-amber-600'}"><span>${o.name} (${d} يوم)</span><span>${o.phone}</span></div>`; 
             }).join('') : '<p class="text-slate-400">لا يوجد</p>';
             
             const totalAll = branchOrders.reduce((s,o) => s + (Number(o.total) || 0), 0);
             const totalPaid = branchOrders.reduce((s,o) => s + (Number(o.paid) || 0), 0);
             const totalRemaining = branchOrders.reduce((s,o) => s + (Number(o.remaining) || 0), 0);
             document.getElementById('reportFinancial').innerHTML = `<div class="flex justify-between"><span>الإجمالي الكلي</span><span class="font-bold">${totalAll} ج.م</span></div><div class="flex justify-between"><span>المدفوع</span><span class="text-emerald-600">${totalPaid} ج.م</span></div><div class="flex justify-between"><span>المتبقي</span><span class="text-rose-600">${totalRemaining} ج.م</span></div>`;
-            
-            const today = new Date().toLocaleDateString('ar-EG');
-            const daily = branchOrders.filter(o => o.date === today);
-            document.getElementById('reportDaily').innerHTML = daily.length ? daily.map(o => `<div class="flex justify-between border-b dark:border-slate-600 pb-2"><span>${o.name} ${o.soNumber||''}</span><span>${o.total} ج.م</span></div>`).join('') : '<p class="text-slate-400">لا يوجد طلبات اليوم</p>';
         }
 
         function printReport(type) {
-            let branchOrders;
-            if (currentBranch === 'all') {
-                branchOrders = orders;
-            } else {
-                branchOrders = orders.filter(o => (o.branch || 'رشيد') === currentBranch);
-            }
-            
+            let branchOrders = currentBranch === 'all' ? orders : orders.filter(o => (o.branch || 'رشيد') === currentBranch);
             let title = '', content = '';
             const style = `<style>body{font-family:'Cairo',sans-serif;direction:rtl;text-align:right;padding:30px;color:#000} h2{text-align:center;margin-bottom:20px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #333;padding:8px;font-size:12px} th{background:#f0f0f0} .footer{margin-top:30px;text-align:center;font-size:10px}</style>`;
+            
             if (type === 'office') { 
                 title = 'كشف الموجود في المكتب'; 
-                const data = branchOrders.filter(o => o.status === 'في المكتب'); 
-                content = data.length ? `<table><tr><th>تاريخ</th><th>SO</th><th>عميل</th><th>هاتف</th><th>نوع</th><th>إجمالي</th></tr>${data.map(o => `<tr><td>${o.date}</td><td>${o.soNumber||''}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.type}</td><td>${o.total} ج.م</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات حالياً في المكتب</p>'; 
-            }
-            else if (type === 'received') { 
-                title = 'كشف المستلم في المحل'; 
-                const data = branchOrders.filter(o => o.status === 'بالمحل'); 
-                content = data.length ? `<table><tr><th>تاريخ</th><th>SO</th><th>عميل</th><th>هاتف</th><th>نوع</th><th>إجمالي</th></tr>${data.map(o => `<tr><td>${o.date}</td><td>${o.soNumber||''}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.type}</td><td>${o.total} ج.م</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات مستلمة</p>'; 
-            }
-            else if (type === 'customers') { 
+                const data = branchOrders.filter(o => o.status === 'في المكتب' && o.delivery !== 'تم التسليم'); 
+                content = data.length ? `<table><tr><th>تاريخ</th><th>SO</th><th>عميل</th><th>هاتف</th><th>نوع</th><th>إجمالي</th></tr>${data.map(o => `<tr><td>${o.date}</td><td>${o.soNumber||''}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.type}</td><td>${o.total} ج.م</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات في المكتب</p>'; 
+            } else if (type === 'received') { 
+                title = 'كشف الموجود في المحل'; 
+                const data = branchOrders.filter(o => o.status === 'بالمحل' && o.delivery !== 'تم التسليم'); 
+                content = data.length ? `<table><tr><th>تاريخ</th><th>SO</th><th>عميل</th><th>هاتف</th><th>نوع</th><th>إجمالي</th></tr>${data.map(o => `<tr><td>${o.date}</td><td>${o.soNumber||''}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.type}</td><td>${o.total} ج.م</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات في المحل</p>'; 
+            } else if (type === 'delivered') { 
+                title = 'كشف الطلبات المسلمة'; 
+                const data = branchOrders.filter(o => o.delivery === 'تم التسليم'); 
+                content = data.length ? `<table><tr><th>تاريخ</th><th>SO</th><th>عميل</th><th>هاتف</th><th>نوع</th><th>إجمالي</th></tr>${data.map(o => `<tr><td>${o.date}</td><td>${o.soNumber||''}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.type}</td><td>${o.total} ج.م</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات مسلمة</p>'; 
+            } else if (type === 'customers') { 
                 title = 'كشف العملاء'; 
                 const custs = [...new Set(branchOrders.map(o => o.phone))].map(phone => { 
                     const o = branchOrders.find(o => o.phone === phone); 
                     return { name: o ? o.name : '', phone, count: branchOrders.filter(o => o.phone === phone).length }; 
                 }); 
                 content = custs.length ? `<table><tr><th>اسم العميل</th><th>رقم الهاتف</th><th>عدد الطلبات</th></tr>${custs.map(c => `<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.count}</td></tr>`).join('')}</table>` : '<p>لا يوجد عملاء</p>'; 
-            }
-            else if (type === 'delayed') { 
+            } else if (type === 'delayed') { 
                 title = 'كشف المتأخرات'; 
-                const data = branchOrders.filter(o => o.status === 'في المكتب' && getDaysSince(o.date) >= 7).sort((a,b) => getDaysSince(b.date) - getDaysSince(a.date)); 
+                const data = branchOrders.filter(o => o.status === 'في المكتب' && getDaysSince(o.date) >= 7 && o.delivery !== 'تم التسليم').sort((a,b) => getDaysSince(b.date) - getDaysSince(a.date)); 
                 content = data.length ? `<table><tr><th>تاريخ</th><th>عميل</th><th>هاتف</th><th>أيام التأخير</th></tr>${data.map(o => `<tr><td>${o.date}</td><td>${o.name}</td><td>${o.phone}</td><td style="color:red">${getDaysSince(o.date)} يوم</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات متأخرة</p>'; 
-            }
-            else if (type === 'financial') { 
+            } else if (type === 'financial') { 
                 title = 'تقرير مالي'; 
                 const totalAll = branchOrders.reduce((s,o) => s + (Number(o.total) || 0), 0); 
                 const totalPaid = branchOrders.reduce((s,o) => s + (Number(o.paid) || 0), 0); 
                 const totalRemaining = branchOrders.reduce((s,o) => s + (Number(o.remaining) || 0), 0); 
-                content = `<p><strong>إجمالي المبيعات:</strong> ${totalAll} ج.م</p><p><strong>المدفوع:</strong> ${totalPaid} ج.م</p><p><strong>المتبقي:</strong> ${totalRemaining} ج.م</p>`; 
-                content += `<br><table><tr><th>عميل</th><th>إجمالي</th><th>مدفوع</th><th>متبقي</th></tr>${branchOrders.map(o => `<tr><td>${o.name}</td><td>${o.total}</td><td>${o.paid}</td><td>${o.remaining}</td></tr>`).join('')}</table>`; 
+                content = `<p><strong>إجمالي المبيعات:</strong> ${totalAll} ج.م</p><p><strong>المدفوع:</strong> ${totalPaid} ج.م</p><p><strong>المتبقي:</strong> ${totalRemaining} ج.م</p><br><table><tr><th>عميل</th><th>إجمالي</th><th>مدفوع</th><th>متبقي</th></tr>${branchOrders.map(o => `<tr><td>${o.name}</td><td>${o.total}</td><td>${o.paid}</td><td>${o.remaining}</td></tr>`).join('')}</table>`; 
             }
-            else if (type === 'daily') { 
-                title = 'تقرير يومي'; 
-                const today = new Date().toLocaleDateString('ar-EG'); 
-                const data = branchOrders.filter(o => o.date === today); 
-                content = data.length ? `<table><tr><th>SO</th><th>عميل</th><th>هاتف</th><th>نوع</th><th>إجمالي</th></tr>${data.map(o => `<tr><td>${o.soNumber||''}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.type}</td><td>${o.total} ج.م</td></tr>`).join('')}</table>` : '<p>لا توجد طلبات اليوم</p>'; 
-            }
+            
             const printWin = window.open('', '_blank', 'width=900,height=600');
-            printWin.document.write(`<html dir="rtl"><head><title>${title}</title>${style}</head><body><h2>${title} - نور للبصريات - ${currentBranch}</h2>${content}<p class="footer">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></body></html>`);
-            printWin.document.close();
-            printWin.focus();
-            printWin.print();
+            printWin.document.write(`<html dir="rtl"><head><title>${title}</title>${style}</head><body><h2>${title} - نور للبصريات</h2>${content}<p class="footer">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p></body></html>`);
+            printWin.document.close(); printWin.focus(); printWin.print();
         }
 
         function exportExcel() {
@@ -1341,8 +1565,8 @@
                 "التاريخ": o.date, "الفرع": o.branch||'', "رقم SO": o.soNumber||"", 
                 "العميل": o.name, "الهاتف": o.phone, "النوع": o.type, 
                 "الإجمالي": o.total, "المدفوع": o.paid, "المتبقي": o.remaining, 
-                "التواجد": o.status, "التسليم": o.delivery||"لم يتم", 
-                "ملاحظات": o.notes||"", "أيام": getDaysSince(o.date) 
+                "الحالة": o.delivery === 'تم التسليم' ? '✅ تم التسليم' : o.status, 
+                "التسليم": o.delivery||"لم يتم", "ملاحظات": o.notes||"", "أيام": getDaysSince(o.date) 
             }));
             let ws = XLSX.utils.json_to_sheet(data), wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, currentBranch);
@@ -1351,18 +1575,14 @@
 
         function exportJSON() {
             let branchOrders = currentBranch === 'all' ? orders : orders.filter(o => (o.branch || 'رشيد') === currentBranch);
-            if(!branchOrders.length) { showAlert("لا بيانات"); return; }
+            if(!branchOrders.length) { showToast("لا بيانات", 'warning'); return; }
             let blob = new Blob([JSON.stringify(branchOrders,null,2)], {type:"application/json"});
-            let a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
-            a.download = `نسخة_${currentBranch}.json`; a.click();
+            let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `نسخة_${currentBranch}.json`; a.click();
         }
 
         async function importJSON(event) {
-            if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) { 
-                showAlert('لا صلاحية'); return; 
-            }
-            let file = event.target.files[0]; 
-            if(!file) return;
+            if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'branch_admin')) { showToast('لا صلاحية', 'error'); return; }
+            let file = event.target.files[0]; if(!file) return;
             let reader = new FileReader();
             reader.onload = async function(e) {
                 try {
@@ -1374,29 +1594,16 @@
                                 const batch = db.batch();
                                 snapshot.docs.forEach(doc => batch.delete(doc.ref));
                                 await batch.commit();
-                                
-                                for (const d of data) {
-                                    d.branch = currentBranch;
-                                    d.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                                    await db.collection("orders").add(d);
-                                }
+                                for (const d of data) { d.branch = currentBranch; d.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection("orders").add(d); }
                             } else {
-                                for (const d of data) {
-                                    d.branch = currentBranch;
-                                    d.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                                    await db.collection("orders").add(d);
-                                }
+                                for (const d of data) { d.branch = currentBranch; d.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection("orders").add(d); }
                             }
-                            showAlert("تم الاستيراد بنجاح");
+                            showToast("تم الاستيراد بنجاح", 'success');
                         });
-                    } else showAlert("ملف غير صالح");
-                } catch(ex) { 
-                    console.error("خطأ في استيراد الملف:", ex);
-                    showAlert("خطأ في الملف"); 
-                }
+                    } else showToast("ملف غير صالح", 'error');
+                } catch(ex) { showToast("خطأ في الملف", 'error'); }
             };
-            reader.readAsText(file);
-            event.target.value = '';
+            reader.readAsText(file); event.target.value = '';
         }
 
         function triggerCleanPrint() { window.print(); }
@@ -1408,9 +1615,7 @@
             document.getElementById('confirmNewPassword').value = ''; 
         }
 
-        function closePasswordModal() { 
-            document.getElementById('passwordModal').classList.remove('active'); 
-        }
+        function closePasswordModal() { document.getElementById('passwordModal').classList.remove('active'); }
 
         async function saveNewPassword(event) {
             event.preventDefault();
@@ -1425,34 +1630,15 @@
                 await user.reauthenticateWithCredential(credential);
                 await user.updatePassword(newPass);
                 closePasswordModal();
-                showAlert('تم تغيير كلمة المرور بنجاح');
-            } catch (e) { 
-                console.error("خطأ في تغيير كلمة المرور:", e);
-                showAlert('كلمة المرور الحالية غير صحيحة'); 
-            }
+                showToast('تم تغيير كلمة المرور بنجاح', 'success');
+            } catch (e) { showAlert('كلمة المرور الحالية غير صحيحة'); }
         }
 
         let confirmCallback = null;
-        function showConfirm(m,cb) { 
-            document.getElementById('confirmMessage').innerText = m; 
-            document.getElementById('confirmModal').classList.add('active'); 
-            confirmCallback = cb; 
-        }
-
-        function confirmAction(r) { 
-            document.getElementById('confirmModal').classList.remove('active'); 
-            if(confirmCallback) confirmCallback(r); 
-            confirmCallback = null; 
-        }
-
-        function showAlert(m) { 
-            document.getElementById('alertMessage').innerText = m; 
-            document.getElementById('alertModal').classList.add('active'); 
-        }
-
-        function closeAlert() { 
-            document.getElementById('alertModal').classList.remove('active'); 
-        }
+        function showConfirm(m,cb) { document.getElementById('confirmMessage').innerText = m; document.getElementById('confirmModal').classList.add('active'); confirmCallback = cb; }
+        function confirmAction(r) { document.getElementById('confirmModal').classList.remove('active'); if(confirmCallback) confirmCallback(r); confirmCallback = null; }
+        function showAlert(m) { document.getElementById('alertMessage').innerText = m; document.getElementById('alertModal').classList.add('active'); }
+        function closeAlert() { document.getElementById('alertModal').classList.remove('active'); }
 
         window.onload = function() { 
             loadDarkMode(); 
@@ -1460,6 +1646,14 @@
             document.getElementById('mainApp').classList.add('hidden'); 
             document.getElementById('orderDate').value = new Date().toISOString().split('T')[0]; 
         };
+
+        // اختصارات لوحة المفاتيح
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'n') { e.preventDefault(); openQuickAdd(); }
+            if (e.ctrlKey && e.key === 'f') { e.preventDefault(); document.getElementById('searchBar').focus(); }
+            if (e.key === 'Escape') { closeEditModal(); closePasswordModal(); closeColumnSettings(); closeBranchesModal(); closeUsersModal(); }
+        });
+        
     </script>
 </body>
 </html>
